@@ -14,17 +14,65 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 DeviceAddress thermometerAddr;
 
-bool temperatureUnit = UNIT_F; // false = F, true = C
+bool temperatureUnit = UNIT_C; // false = F, true = C
+float tempF;
+float tempC;
+int16_t lowAlarmValue = 20;
+int16_t highAlarmValue = 23;
+bool lowAlarmAcknoledged = false;
+bool highAlarmAcknoledged = false;
+
+void printAlarmInfo(const DeviceAddress deviceAddress) {
+  char temp;
+  // printAddress(deviceAddress);
+
+  Serial.print("Low: ");
+  temp = sensors.getLowAlarmTemp(deviceAddress);
+  Serial.print(temp, DEC);
+  Serial.print("°C   ");
+  temp = sensors.getHighAlarmTemp(deviceAddress);
+  Serial.print("High: ");
+  Serial.print(temp, DEC);
+  Serial.println("°C");
+  Serial.println();
+}
+
+// Gets called as long as there's an alarm condition, so pretty much
+// constantly.... Maybe not use that handler function and just handle in loop
+// with the read ?
+void newAlarmHandler(const uint8_t *deviceAddress) {
+
+  if (tempC <= lowAlarmValue && !lowAlarmAcknoledged && highAlarmAcknoledged) {
+    Serial.println("Low Temperature Alarm");
+    lowAlarmAcknoledged = true;
+    highAlarmAcknoledged = false;
+  } else if (tempC >= highAlarmValue && !highAlarmAcknoledged) {
+    Serial.println("High Temperature Alarm");
+    highAlarmAcknoledged = true;
+  }
+
+  /*
+  Serial.println("Alarm Handler Start");
+  printAlarmInfo(deviceAddress);
+  //printTemp(deviceAddress);
+  Serial.println();
+  Serial.println("Alarm Handler Finish");
+  */
+}
 
 void loop() {
+
+  sensors.processAlarms();
 
   static uint32_t lastSensorRead = millis();
   if (millis() - lastSensorRead > 1000) {
 
     sensors.requestTemperatures();
+    tempF = sensors.getTempF(thermometerAddr);
+    tempC = sensors.getTempC(thermometerAddr);
 
     if (temperatureUnit == UNIT_F) {
-      float tempF = sensors.getTempF(thermometerAddr);
+      // tempF = sensors.getTempF(thermometerAddr);
 
       // Check if reading was successful
       if (tempF != DEVICE_DISCONNECTED_F) {
@@ -37,7 +85,7 @@ void loop() {
     }
     // Else we are in Celcius mode
     else {
-      float tempC = sensors.getTempC(thermometerAddr);
+      // tempC = sensors.getTempC(thermometerAddr);
       if (tempC != DEVICE_DISCONNECTED_C) {
         setDisplay(tempC);
       }
@@ -63,7 +111,23 @@ void setup() {
   sensors.setResolution(9);
   if (!sensors.getAddress(thermometerAddr, 0)) {
     Serial.println("Unable to find address for Device 0");
+  } else {
+    printAlarmInfo(thermometerAddr);
   }
+
+  /*****************************************************************************/
+
+  // set alarm ranges
+  Serial.println("Setting alarm temps...");
+  sensors.setHighAlarmTemp(thermometerAddr, highAlarmValue);
+  sensors.setLowAlarmTemp(thermometerAddr, lowAlarmValue);
+
+  Serial.print("New alarm values - ");
+  printAlarmInfo(thermometerAddr);
+  Serial.println();
+
+  // attach alarm handler
+  sensors.setAlarmHandler(&newAlarmHandler);
 
   delay(1000);
 
