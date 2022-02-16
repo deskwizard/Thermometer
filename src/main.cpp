@@ -1,7 +1,7 @@
+#include "display.h"
 #include <Arduino.h>
 #include <DallasTemperature.h>
 #include <OneWire.h>
-#include "display.h"
 
 #define UNIT_C true
 #define UNIT_F false
@@ -12,9 +12,9 @@
 OneWire oneWire(ONE_WIRE_BUS);
 // Pass our oneWire reference to Dallas Temperature.
 DallasTemperature sensors(&oneWire);
+DeviceAddress thermometerAddr;
 
 bool temperatureUnit = UNIT_F; // false = F, true = C
-
 
 void loop() {
 
@@ -24,7 +24,7 @@ void loop() {
     sensors.requestTemperatures();
 
     if (temperatureUnit == UNIT_F) {
-      float tempF = sensors.getTempFByIndex(0);
+      float tempF = sensors.getTempF(thermometerAddr);
 
       // Check if reading was successful
       if (tempF != DEVICE_DISCONNECTED_F) {
@@ -37,7 +37,7 @@ void loop() {
     }
     // Else we are in Celcius mode
     else {
-      float tempC = sensors.getTempCByIndex(0);
+      float tempC = sensors.getTempC(thermometerAddr);
       if (tempC != DEVICE_DISCONNECTED_C) {
         setDisplay(tempC);
       }
@@ -55,15 +55,17 @@ void loop() {
 void setup() {
 
   Serial.begin(57600);
-
+  delay(1000);
+  Serial.println("Hello");
   displayInit();
 
   sensors.begin();
   sensors.setResolution(9);
+  if (!sensors.getAddress(thermometerAddr, 0)) {
+    Serial.println("Unable to find address for Device 0");
+  }
 
   delay(1000);
 
-  Serial.println("Hello");
-
+  Serial.println("Ready.");
 }
-
