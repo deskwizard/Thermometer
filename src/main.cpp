@@ -60,9 +60,9 @@ void handleAlarms() {
     Serial.println("High Temperature Alarm");
     highAlarmTriggered = true;
   }
-}
+  // }
 
-void handleLEDs() {
+  // void handleLEDs() {
   static bool ledState;
   static uint32_t previousMillis = millis();
   if (millis() - previousMillis > 1000) {
@@ -84,7 +84,7 @@ void handleLEDs() {
 void loop() {
 
   static uint32_t lastSensorRead = millis();
-  if (millis() - lastSensorRead > 1000) {
+  if (millis() - lastSensorRead > 500) {
 
     sensors.requestTemperatures();
     tempF = sensors.getTempF(thermometerAddr);
@@ -119,7 +119,7 @@ void loop() {
   }
 
   handleInputs();
-  handleLEDs();
+ // handleLEDs();
 
 } // Loop
 

@@ -3,26 +3,8 @@
 
 // TODO: Key release "event"
 
-#define LED_BLUE 19
-#define LED_RED 18
-
-// FIXME: Encoder is a bit dicky... dirty/old encoder?
-// Rotary Encoders
-#define ENC_PIN PINC
-#define ENC_DDR DDRC
-#define ENC_PORT PORTC
-#define ENC1_A PC2
-#define ENC1_B PC1
-
 volatile unsigned char currentEnc1Pos = 0;
 unsigned char lastEnc1Pos = 0;
-
-// Keys
-#define KEY_PIN PINC
-#define KEY_DDR DDRC
-#define KEY_PORT PORTC
-#define KEY0 PC0
-#define KEY1 PC3
 
 // Debouncing variables
 unsigned char
@@ -100,10 +82,6 @@ void read_keys() {
 
   if (get_key_press(1 << KEY0)) {
     Serial.println("KEY0");
-  } // Key0
-
-  if (get_key_press(1 << KEY1)) {
-    Serial.println("KEY1");
 
     if (lowAlarmTriggered && !lowAlarmAcknoledged) {
       lowAlarmAcknoledged = true;
@@ -119,6 +97,10 @@ void read_keys() {
       digitalWrite(LED_RED, LOW);
     }
   } // Key1
+
+  if (get_key_press(1 << KEY1)) {
+    Serial.println("KEY1");
+  } // Key0
 
 } // debounce
 

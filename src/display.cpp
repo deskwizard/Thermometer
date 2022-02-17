@@ -9,6 +9,8 @@ LedControl display = LedControl(12, 13, 10, 1);
 extern bool temperatureUnit;
 
 void displayInit() {
+  // Limit display to 6 digits
+  display.setScanLimit(0, 6);
   // Enable Display...
   display.shutdown(0, false);
   // Set the brightness to a medium values...
