@@ -25,21 +25,23 @@ int16_t lowAlarmValue = 20;  // 40; // 104F
 int16_t highAlarmValue = 23; // 60; // 140F
 bool lowAlarmAcknoledged = false;
 bool highAlarmAcknoledged = false;
+bool lowAlarmTriggered = false;
+bool highAlarmTriggered = false;
 
 void printAlarmInfo(const DeviceAddress deviceAddress) {
-  char temp;
+  int8_t temp;
   // printAddress(deviceAddress);
 
   Serial.print("Low: ");
   temp = sensors.getLowAlarmTemp(deviceAddress);
-  Serial.print(temp, DEC);
+  Serial.print(temp);
   Serial.print("°C (");
   Serial.print(sensors.toFahrenheit(temp));
   Serial.print("°F)  ");
 
   temp = sensors.getHighAlarmTemp(deviceAddress);
   Serial.print("High: ");
-  Serial.print(temp, DEC);
+  Serial.print(temp);
   Serial.print("°C (");
   Serial.print(sensors.toFahrenheit(temp));
   Serial.println("°F)  ");
@@ -48,18 +50,17 @@ void printAlarmInfo(const DeviceAddress deviceAddress) {
 
 void handleAlarms() {
 
-  if (tempC <= lowAlarmValue && !lowAlarmAcknoledged && highAlarmAcknoledged) {
+  if (tempC <= lowAlarmValue && !lowAlarmAcknoledged && highAlarmAcknoledged &&
+      !lowAlarmTriggered) {
     Serial.println("Low Temperature Alarm");
-    lowAlarmAcknoledged = true;
-    highAlarmAcknoledged = false;
+    lowAlarmTriggered = true;
     digitalWrite(LED_BLUE, HIGH);
-    digitalWrite(LED_RED, LOW);
-  } else if (tempC >= highAlarmValue && !highAlarmAcknoledged) {
+  }
+
+  if (tempC >= highAlarmValue && !highAlarmAcknoledged && !highAlarmTriggered) {
     Serial.println("High Temperature Alarm");
-    lowAlarmAcknoledged = false;
-    highAlarmAcknoledged = true;
+    highAlarmTriggered = true;
     digitalWrite(LED_RED, HIGH);
-    digitalWrite(LED_BLUE, LOW);
   }
 }
 

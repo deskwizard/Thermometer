@@ -3,6 +3,9 @@
 
 // TODO: Key release "event"
 
+#define LED_BLUE 19
+#define LED_RED 18
+
 // FIXME: Encoder is a bit dicky... dirty/old encoder?
 // Rotary Encoders
 #define ENC_PIN PINC
@@ -26,6 +29,11 @@ unsigned char
     key_state; // Debounced and inverted key state: bit = 1: key pressed
 volatile unsigned char key_press;     // Key press detect
 unsigned char ct0 = 0xFF, ct1 = 0xFF; // Internal debouncing states
+
+extern bool lowAlarmAcknoledged;
+extern bool highAlarmAcknoledged;
+extern bool lowAlarmTriggered;
+extern bool highAlarmTriggered;
 
 inline uint8_t getEnc1Pos(void) {
 
@@ -96,6 +104,20 @@ void read_keys() {
 
   if (get_key_press(1 << KEY1)) {
     Serial.println("KEY1");
+
+    if (lowAlarmTriggered && !lowAlarmAcknoledged) {
+      lowAlarmAcknoledged = true;
+      lowAlarmTriggered = false;
+      highAlarmAcknoledged = false;
+      digitalWrite(LED_BLUE, LOW);
+    }
+
+    if (highAlarmTriggered && !highAlarmAcknoledged) {
+      highAlarmAcknoledged = true;
+      highAlarmTriggered = false;
+      lowAlarmAcknoledged = false;
+      digitalWrite(LED_RED, LOW);
+    }
   } // Key1
 
 } // debounce
