@@ -54,13 +54,30 @@ void handleAlarms() {
       !lowAlarmTriggered) {
     Serial.println("Low Temperature Alarm");
     lowAlarmTriggered = true;
-    digitalWrite(LED_BLUE, HIGH);
   }
 
   if (tempC >= highAlarmValue && !highAlarmAcknoledged && !highAlarmTriggered) {
     Serial.println("High Temperature Alarm");
     highAlarmTriggered = true;
-    digitalWrite(LED_RED, HIGH);
+  }
+}
+
+void handleLEDs() {
+  static bool ledState;
+  static uint32_t previousMillis = millis();
+  if (millis() - previousMillis > 1000) {
+
+    if (lowAlarmTriggered && !lowAlarmAcknoledged) {
+      ledState = !ledState;
+      digitalWrite(LED_BLUE, ledState);
+    }
+
+    if (highAlarmTriggered && !highAlarmAcknoledged) {
+      ledState = !ledState;
+      digitalWrite(LED_RED, ledState);
+    }
+
+    previousMillis = millis();
   }
 }
 
@@ -102,6 +119,7 @@ void loop() {
   }
 
   handleInputs();
+  handleLEDs();
 
 } // Loop
 
