@@ -17,11 +17,11 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 DeviceAddress thermometerAddr;
 
-bool temperatureUnit = UNIT_F; // false = F, true = C
+bool temperatureUnit = UNIT_C; // false = F, true = C
 float tempF;
 float tempC;
-int16_t lowAlarmValue = 40; // 104F
-int16_t highAlarmValue = 60; // 140F 
+int16_t lowAlarmValue = 20;  // 40; // 104F
+int16_t highAlarmValue = 23; // 60; // 140F
 bool lowAlarmAcknoledged = false;
 bool highAlarmAcknoledged = false;
 
@@ -45,10 +45,7 @@ void printAlarmInfo(const DeviceAddress deviceAddress) {
   Serial.println();
 }
 
-// Gets called as long as there's an alarm condition, so pretty much
-// constantly.... Maybe not use that handler function and just handle in loop
-// with the read ?
-void newAlarmHandler(const uint8_t *deviceAddress) {
+void handleAlarms() {
 
   if (tempC <= lowAlarmValue && !lowAlarmAcknoledged && highAlarmAcknoledged) {
     Serial.println("Low Temperature Alarm");
@@ -63,19 +60,9 @@ void newAlarmHandler(const uint8_t *deviceAddress) {
     digitalWrite(LED_RED, HIGH);
     digitalWrite(LED_BLUE, LOW);
   }
-
-  /*
-  Serial.println("Alarm Handler Start");
-  printAlarmInfo(deviceAddress);
-  //printTemp(deviceAddress);
-  Serial.println();
-  Serial.println("Alarm Handler Finish");
-  */
 }
 
 void loop() {
-
-  sensors.processAlarms();
 
   static uint32_t lastSensorRead = millis();
   if (millis() - lastSensorRead > 1000) {
@@ -107,6 +94,8 @@ void loop() {
       }
     }
 
+    handleAlarms();
+
     lastSensorRead = millis();
   }
 }
@@ -135,13 +124,11 @@ void setup() {
   Serial.println("Setting alarm temps...");
   sensors.setHighAlarmTemp(thermometerAddr, highAlarmValue);
   sensors.setLowAlarmTemp(thermometerAddr, lowAlarmValue);
-
-  Serial.print("New alarm values - ");
-  printAlarmInfo(thermometerAddr);
+  /*
+    Serial.print("New alarm values - ");
+    printAlarmInfo(thermometerAddr);
+    */
   Serial.println();
-
-  // attach alarm handler
-  sensors.setAlarmHandler(&newAlarmHandler);
 
   delay(1000);
 
