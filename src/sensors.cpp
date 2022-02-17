@@ -49,7 +49,7 @@ void printAlarmInfo(const DeviceAddress deviceAddress) {
   Serial.println();
 }
 
-void sensorsInit() {
+void initSensors() {
 
   sensors.begin();
   sensors.setResolution(9);
@@ -85,6 +85,17 @@ void handleSensors() {
     // Serial.print("  C: ");
     // Serial.println(tempC);
 
+    // Check for error with C, because it's an integer and F is a float.
+    // double check the cast w/ rounding doesn't mess you up.
+    if (tempC != DEVICE_DISCONNECTED_C) {
+
+      updateDisplay();
+    }
+    // Otherwise we have a problem
+    else {
+      Serial.println("Error: Could not read temperature data");
+    }
+/*
     if (temperatureUnit == UNIT_F) {
 
       // Check if reading was successful
@@ -107,7 +118,7 @@ void handleSensors() {
         Serial.println("Error: Could not read temperature data");
       }
     }
-
+*/
     handleAlarms();
     // handleLEDs();
 

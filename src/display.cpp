@@ -6,9 +6,10 @@
 
 LedControl display = LedControl(12, 13, 10, 1);
 
+extern int16_t tempC, tempF;
 extern bool temperatureUnit;
 
-void displayInit() {
+void initDisplay() {
   // Limit display to 6 digits
   display.setScanLimit(0, 6);
   // Enable Display...
@@ -42,6 +43,16 @@ void updateUnits() {
     display.setChar(0, 5, 'F', false);
   } else {
     display.setRow(0, 5, B01001110); // uppercase C
+  }
+  updateDisplay();
+}
+
+void updateDisplay() {
+
+  if (temperatureUnit == UNIT_F) {
+    setDisplay(tempF);
+  } else {
+    setDisplay(tempC);
   }
 }
 

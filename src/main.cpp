@@ -1,6 +1,6 @@
 /*
 
-    Hunting: rounding seems off somewhere, display changes before alarm toggles, let's figure out why.
+    
 
 */
 
@@ -21,10 +21,10 @@ void setup() {
   delay(1000);
   Serial.println("Hello");
 
-  inputInit();
-  sensorsInit();
+  initInputs();
+  initSensors();
 
-  displayInit();
+  initDisplay();
 
   pinMode(LED_BLUE, OUTPUT);
   pinMode(LED_RED, OUTPUT);

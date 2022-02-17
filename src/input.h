@@ -18,5 +18,5 @@
 #define KEY0 PC0
 #define KEY1 PC3
 
-void inputInit();
+void initInputs();
 void handleInputs();

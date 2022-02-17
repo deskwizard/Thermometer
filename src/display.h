@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 
-void displayInit();
+void initDisplay();
 void setDisplay(int16_t value);
 void updateUnits();
+void updateDisplay();

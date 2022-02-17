@@ -41,7 +41,7 @@ unsigned char get_key_press(unsigned char key_mask) {
   return key_mask;
 }
 
-void timerInit() {
+void initTimer() {
 
   // TIMER 2 for interrupt frequency 1000 Hz:
   cli(); // stop interrupts
@@ -65,7 +65,7 @@ void timerInit() {
   sei(); // allow interrupts
 }
 
-void inputInit() {
+void initInputs() {
 
   ENC_PORT |= (1 << ENC1_A) | (1 << ENC1_B); // PC1 and PC2 Input w/ pull-up
 
@@ -78,7 +78,7 @@ void inputInit() {
   // Preload debounce variable
   key_state = ~KEY_PIN; // No action on keypress during reset
 
-  timerInit();
+  initTimer();
 }
 
 void read_keys() {
