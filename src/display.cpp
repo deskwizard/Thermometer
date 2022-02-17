@@ -19,12 +19,14 @@ void displayInit() {
   display.clearDisplay(0);
 
   for (uint8_t x = 0; x <= 5; x++) {
-    display.setChar(0, x, '-', false);
+    display.setDigit(0, x, 8, false);
   }
 
   delay(1000);
 
-  // display.clearDisplay(0);
+  for (uint8_t x = 0; x <= 5; x++) {
+    display.setChar(0, x, '-', false);
+  }
 
   if (temperatureUnit == UNIT_F) {
     display.setChar(0, 5, 'F', false);
@@ -33,6 +35,14 @@ void displayInit() {
   }
 
   display.setRow(0, 4, B01100011); // degree sign
+}
+
+void updateUnits() {
+  if (temperatureUnit == UNIT_F) {
+    display.setChar(0, 5, 'F', false);
+  } else {
+    display.setRow(0, 5, B01001110); // uppercase C
+  }
 }
 
 void setDisplay(float value) {

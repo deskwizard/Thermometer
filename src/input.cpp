@@ -1,5 +1,7 @@
 #include "input.h"
 #include <Arduino.h>
+#include "display.h"
+
 
 // TODO: Key release "event"
 
@@ -16,6 +18,7 @@ extern bool lowAlarmAcknoledged;
 extern bool highAlarmAcknoledged;
 extern bool lowAlarmTriggered;
 extern bool highAlarmTriggered;
+extern bool temperatureUnit;
 
 inline uint8_t getEnc1Pos(void) {
 
@@ -100,6 +103,8 @@ void read_keys() {
 
   if (get_key_press(1 << KEY1)) {
     Serial.println("KEY1");
+    temperatureUnit = !temperatureUnit;
+    updateUnits();
   } // Key0
 
 } // debounce
