@@ -3,6 +3,9 @@
 #include <DallasTemperature.h>
 #include <OneWire.h>
 
+#define LED_BLUE 19
+#define LED_RED 18
+
 #define UNIT_C true
 #define UNIT_F false
 
@@ -14,11 +17,11 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 DeviceAddress thermometerAddr;
 
-bool temperatureUnit = UNIT_C; // false = F, true = C
+bool temperatureUnit = UNIT_F; // false = F, true = C
 float tempF;
 float tempC;
-int16_t lowAlarmValue = 20;
-int16_t highAlarmValue = 23;
+int16_t lowAlarmValue = 40; // 104F
+int16_t highAlarmValue = 60; // 140F 
 bool lowAlarmAcknoledged = false;
 bool highAlarmAcknoledged = false;
 
@@ -29,11 +32,16 @@ void printAlarmInfo(const DeviceAddress deviceAddress) {
   Serial.print("Low: ");
   temp = sensors.getLowAlarmTemp(deviceAddress);
   Serial.print(temp, DEC);
-  Serial.print("°C   ");
+  Serial.print("°C (");
+  Serial.print(sensors.toFahrenheit(temp));
+  Serial.print("°F)  ");
+
   temp = sensors.getHighAlarmTemp(deviceAddress);
   Serial.print("High: ");
   Serial.print(temp, DEC);
-  Serial.println("°C");
+  Serial.print("°C (");
+  Serial.print(sensors.toFahrenheit(temp));
+  Serial.println("°F)  ");
   Serial.println();
 }
 
@@ -46,9 +54,14 @@ void newAlarmHandler(const uint8_t *deviceAddress) {
     Serial.println("Low Temperature Alarm");
     lowAlarmAcknoledged = true;
     highAlarmAcknoledged = false;
+    digitalWrite(LED_BLUE, HIGH);
+    digitalWrite(LED_RED, LOW);
   } else if (tempC >= highAlarmValue && !highAlarmAcknoledged) {
     Serial.println("High Temperature Alarm");
+    lowAlarmAcknoledged = false;
     highAlarmAcknoledged = true;
+    digitalWrite(LED_RED, HIGH);
+    digitalWrite(LED_BLUE, LOW);
   }
 
   /*
@@ -72,7 +85,6 @@ void loop() {
     tempC = sensors.getTempC(thermometerAddr);
 
     if (temperatureUnit == UNIT_F) {
-      // tempF = sensors.getTempF(thermometerAddr);
 
       // Check if reading was successful
       if (tempF != DEVICE_DISCONNECTED_F) {
@@ -85,7 +97,6 @@ void loop() {
     }
     // Else we are in Celcius mode
     else {
-      // tempC = sensors.getTempC(thermometerAddr);
       if (tempC != DEVICE_DISCONNECTED_C) {
         setDisplay(tempC);
       }
@@ -106,6 +117,9 @@ void setup() {
   delay(1000);
   Serial.println("Hello");
   displayInit();
+
+  pinMode(LED_BLUE, OUTPUT);
+  pinMode(LED_RED, OUTPUT);
 
   sensors.begin();
   sensors.setResolution(9);
