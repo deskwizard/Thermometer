@@ -19,8 +19,9 @@ DallasTemperature sensors(&oneWire);
 DeviceAddress thermometerAddr;
 
 bool temperatureUnit = UNIT_C; // false = F, true = C
-float tempF;
-float tempC;
+int16_t tempF;
+int16_t tempC;
+
 int16_t lowAlarmValue = 22;  // 40; // 104F
 int16_t highAlarmValue = 25; // 60; // 140F
 bool lowAlarmAcknoledged = false;
@@ -76,8 +77,13 @@ void handleSensors() {
   if (millis() - lastSensorRead > 500) {
 
     sensors.requestTemperatures();
-    tempF = sensors.getTempF(thermometerAddr);
-    tempC = sensors.getTempC(thermometerAddr);
+    tempF = (int16_t)(sensors.getTempF(thermometerAddr) + 0.5);
+    tempC = (int16_t)(sensors.getTempC(thermometerAddr) + 0.5);
+
+    // Serial.print("F: ");
+    // Serial.print(tempF);
+    // Serial.print("  C: ");
+    // Serial.println(tempC);
 
     if (temperatureUnit == UNIT_F) {
 
@@ -103,7 +109,7 @@ void handleSensors() {
     }
 
     handleAlarms();
-    //handleLEDs();
+    // handleLEDs();
 
     lastSensorRead = millis();
   }

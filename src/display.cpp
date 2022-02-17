@@ -45,11 +45,10 @@ void updateUnits() {
   }
 }
 
-void setDisplay(float value) {
-  /*
-    Serial.print("Value: ");
-    Serial.println(value);
-  */
+void setDisplay(int16_t value) {
+
+  // Serial.print("Value: ");
+  // Serial.print(value);
 
   if (value < 0) {
     display.setChar(0, 0, '-', false);
@@ -58,8 +57,8 @@ void setDisplay(float value) {
   }
 
   int16_t hundreds = value / 100;
-  int16_t tens = ((int16_t)(value + 0.5) / 10) % 10;
-  int16_t ones = (int16_t)(value + 0.5) % 10;
+  int16_t tens = (value / 10) % 10;
+  int16_t ones = value % 10;
 
   if (hundreds == 0) {
     display.setChar(0, 1, ' ', false);
@@ -75,13 +74,11 @@ void setDisplay(float value) {
 
   display.setDigit(0, 3, ones, false);
 
-  /*
-    Serial.print("Hund: ");
-    Serial.println(hundreds);
-    Serial.print("Tens: ");
-    Serial.println(tens);
-    Serial.print("Ones: ");
-    Serial.println(ones);
-    Serial.println();
-    */
+  // Serial.print("   H: ");
+  // Serial.print(hundreds);
+  // Serial.print("  T: ");
+  // Serial.print(tens);
+  // Serial.print("  Os: ");
+  // Serial.println(ones);
+  // Serial.println();
 }

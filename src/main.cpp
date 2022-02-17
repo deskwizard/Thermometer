@@ -1,3 +1,10 @@
+/*
+
+    Hunting: rounding seems off somewhere, display changes before alarm toggles, let's figure out why.
+
+*/
+
+
 #include "display.h"
 #include "input.h"
 #include "sensors.h"

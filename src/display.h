@@ -3,5 +3,5 @@
 #include <Arduino.h>
 
 void displayInit();
-void setDisplay(float value);
+void setDisplay(int16_t value);
 void updateUnits();
