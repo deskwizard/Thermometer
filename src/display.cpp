@@ -1,148 +1,75 @@
 #include "display.h"
+#include "LedControl.h"
 
-// FIXME:   find a better place for those 
-//          instead of having them twice.
 #define UNIT_C true
 #define UNIT_F false
 
+LedControl display = LedControl(12, 13, 10, 1);
+
 extern bool temperatureUnit;
 
-// 7 segment display pins
-uint8_t seg_array[7] = {6, 7, 8, 9, 10, 11, 12};
-uint8_t com_array[4] = {2, 3, 4, 5};
-uint8_t displayBuffer[4] = {17, 17, 17, 17};
-uint8_t digitCount = 4;
-
-bool num_array[][7] = {
-    {1, 1, 1, 1, 1, 1, 0}, // 0
-    {0, 1, 1, 0, 0, 0, 0}, // 1
-    {1, 1, 0, 1, 1, 0, 1}, // 2
-    {1, 1, 1, 1, 0, 0, 1}, // 3
-    {0, 1, 1, 0, 0, 1, 1}, // 4
-    {1, 0, 1, 1, 0, 1, 1}, // 5
-    {1, 0, 1, 1, 1, 1, 1}, // 6
-    {1, 1, 1, 0, 0, 0, 0}, // 7
-    {1, 1, 1, 1, 1, 1, 1}, // 8
-    {1, 1, 1, 0, 0, 1, 1}, // 9
-    {1, 1, 1, 0, 1, 1, 1}, // A
-    {0, 0, 1, 1, 1, 1, 1}, // B
-    {1, 0, 0, 1, 1, 1, 0}, // C
-    {0, 1, 1, 1, 1, 0, 1}, // D
-    {1, 0, 0, 1, 1, 1, 1}, // E
-    {1, 0, 0, 0, 1, 1, 1}, // F
-    {0, 0, 0, 0, 0, 0, 0}, // Blank
-    {0, 0, 0, 0, 0, 0, 1}  // -
-};
-
-void displayTimerInit();
-
 void displayInit() {
-    // Set Common pins
-  for (uint8_t x = 0; x < 4; x++) {
-    pinMode(com_array[x], OUTPUT);
-    digitalWrite(com_array[x], HIGH);
+  // Enable Display...
+  display.shutdown(0, false);
+  // Set the brightness to a medium values...
+  display.setIntensity(0, 8);
+  // and clear the display.
+  display.clearDisplay(0);
+
+  for (uint8_t x = 0; x <= 5; x++) {
+    display.setChar(0, x, '-', false);
   }
 
-  // Set segments pins
-  for (uint8_t x = 0; x < 7; x++) {
-    pinMode(seg_array[x], OUTPUT);
+  delay(1000);
+
+  // display.clearDisplay(0);
+
+  if (temperatureUnit == UNIT_F) {
+    display.setChar(0, 5, 'F', false);
+  } else {
+    display.setRow(0, 5, B01001110); // uppercase C
   }
 
-  displayTimerInit();
+  display.setRow(0, 4, B01100011); // degree sign
 }
 
-void setDigit(uint8_t digit, uint8_t number) { displayBuffer[digit] = number; }
+void setDisplay(float value) {
+  /*
+    Serial.print("Value: ");
+    Serial.println(value);
+  */
 
-void setDisplay(uint16_t value) {
-/*
-  Serial.print("Value: ");
-  Serial.println(value);
-*/
-  uint16_t hundreds = value / 100;
-  uint16_t tens = (value / 10) % 10;
-  uint16_t ones = value % 10;
+  if (value < 0) {
+    display.setChar(0, 0, '-', false);
+  } else {
+    display.setChar(0, 0, ' ', false);
+  }
+
+  int16_t hundreds = value / 100;
+  int16_t tens = ((int16_t)(value + 0.5) / 10) % 10;
+  int16_t ones = (int16_t)(value + 0.5) % 10;
 
   if (hundreds == 0) {
-    displayBuffer[0] = 16;
+    display.setChar(0, 1, ' ', false);
   } else {
-    displayBuffer[0] = hundreds;
+    display.setDigit(0, 1, hundreds, false);
   }
 
   if (hundreds == 0 && tens == 0) {
-    displayBuffer[1] = 16;
+    display.setChar(0, 2, ' ', false);
   } else {
-    displayBuffer[1] = tens;
+    display.setDigit(0, 2, tens, false);
   }
 
-  displayBuffer[2] = ones;
+  display.setDigit(0, 3, ones, false);
 
-/*
-  Serial.print("Hund: ");
-  Serial.println(hundreds);
-  Serial.print("Tens: ");
-  Serial.println(tens);
-  Serial.print("Ones: ");
-  Serial.println(ones);
-  Serial.println();
-  */
-}
-
-void updateDisplay() {
-  static uint8_t bufferIndex = 0;
-
-  for (uint8_t x = 0; x < 4; x++) {
-    if (x != bufferIndex) {
-      digitalWrite(com_array[x], HIGH);
-    } else {
-      digitalWrite(com_array[x], LOW);
-    }
-  }
-
-  if (bufferIndex == 3) {
-    uint8_t unitDigit;
-    if (temperatureUnit == UNIT_F) {
-      unitDigit = 0xF;
-    } else {
-      unitDigit = 0xC;
-    }
-    for (uint8_t i = 0; i < 7; i++) {
-      digitalWrite(seg_array[i], num_array[unitDigit][i]);
-    }
-  } else {
-    for (uint8_t i = 0; i < 7; i++) {
-      digitalWrite(seg_array[i], num_array[displayBuffer[bufferIndex]][i]);
-    }
-  }
-
-  if (bufferIndex < digitCount - 1) {
-    bufferIndex++;
-  } else {
-    bufferIndex = 0;
-  }
-}
-
-ISR(TIMER2_COMPA_vect) { updateDisplay(); }
-
-void displayTimerInit() {
-
-  // TIMER 2 for interrupt frequency 1000 Hz:
-  cli(); // stop interrupts
-
-  TCCR2A = 0; // set entire TCCR2A register to 0
-  TCCR2B = 0; // same for TCCR2B
-  TCNT2 = 0;  // initialize counter value to 0
-
-  // set compare match register for ??? Hz increments
-  OCR2A = 255; // = 8000000 / (32 * 1000) - 1 (must be <256)
-
-  // turn on CTC mode
-  TCCR2B |= (1 << WGM21);
-
-  // Set CS22, CS21 and CS20 bits for 1024 prescaler
-  TCCR2B |= (1 << CS22) | (1 << CS21) | (0 << CS20);
-
-  // enable timer compare interrupt
-  TIMSK2 |= (1 << OCIE2A);
-
-  sei(); // allow interrupts
+  /*
+    Serial.print("Hund: ");
+    Serial.println(hundreds);
+    Serial.print("Tens: ");
+    Serial.println(tens);
+    Serial.print("Ones: ");
+    Serial.println(ones);
+    Serial.println();
+    */
 }
