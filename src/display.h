@@ -4,4 +4,3 @@
 
 void displayInit();
 void setDisplay(float value);
-//void updateDisplay();

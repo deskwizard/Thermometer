@@ -1,4 +1,5 @@
 #include "display.h"
+#include "input.h"
 #include <Arduino.h>
 #include <DallasTemperature.h>
 #include <OneWire.h>
@@ -10,7 +11,7 @@
 #define UNIT_F false
 
 // OneWire Bus pin (requires 4.7K external pullup)
-#define ONE_WIRE_BUS 14
+#define ONE_WIRE_BUS 7
 
 OneWire oneWire(ONE_WIRE_BUS);
 // Pass our oneWire reference to Dallas Temperature.
@@ -98,13 +99,19 @@ void loop() {
 
     lastSensorRead = millis();
   }
-}
+
+  handleInputs();
+
+} // Loop
 
 void setup() {
 
   Serial.begin(57600);
   delay(1000);
   Serial.println("Hello");
+
+  inputInit();
+
   displayInit();
 
   pinMode(LED_BLUE, OUTPUT);
