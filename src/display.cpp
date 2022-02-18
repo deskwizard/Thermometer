@@ -8,19 +8,17 @@ LedControl display = LedControl(12, 13, 10, 1);
 
 bool displayBlinkEnabled = false;
 uint16_t displayBlinkRate = 500;
+uint8_t displayIntensity = MAX_INTENSITY;
 
 extern int16_t tempC, tempF;
 extern bool temperatureUnit;
 
 void initDisplay() {
-  // Limit display to 6 digits
-  display.setScanLimit(0, 6);
-  // Enable Display...
-  display.shutdown(0, false);
-  // Set the brightness to a medium values...
-  display.setIntensity(0, MAX_INTENSITY);
-  // and clear the display.
-  display.clearDisplay(0);
+
+  display.setScanLimit(0, 6);                // Limit display to 6 digits
+  display.shutdown(0, false);                // Enable Display...
+  display.setIntensity(0, displayIntensity); // Set the intensity
+  display.clearDisplay(0);                   // and clear the display.
 
   for (uint8_t x = 0; x <= 5; x++) {
     display.setDigit(0, x, 8, false);
@@ -35,17 +33,17 @@ void initDisplay() {
   if (temperatureUnit == UNIT_F) {
     display.setChar(0, 5, 'F', false);
   } else {
-    display.setRow(0, 5, B01001110); // uppercase C
+    display.setRow(0, 5, B01001110); // Uppercase C
   }
 
-  display.setRow(0, 4, B01100011); // degree sign
+  display.setRow(0, 4, B01100011); // Degree sign
 }
 
 void updateUnits() {
   if (temperatureUnit == UNIT_F) {
     display.setChar(0, 5, 'F', false);
   } else {
-    display.setRow(0, 5, B01001110); // uppercase C
+    display.setRow(0, 5, B01001110); // Uppercase C
   }
   updateDisplay();
 }
@@ -98,7 +96,6 @@ void setDisplay(int16_t value) {
 }
 
 void blinkDisplay(bool enabled, uint16_t rate) {
-  // displayBlinkEnabled = enabled;
   displayBlinkRate = rate;
   blinkDisplay(enabled);
 }
@@ -106,7 +103,7 @@ void blinkDisplay(bool enabled, uint16_t rate) {
 void blinkDisplay(bool enabled) {
   displayBlinkEnabled = enabled;
   if (!enabled) {
-    display.setIntensity(0, MAX_INTENSITY);  // Restore intensity
+    display.setIntensity(0, displayIntensity); // Restore intensity
   }
 }
 
@@ -116,9 +113,13 @@ void handleDisplay() {
   static uint32_t previousMillis = millis();
   if ((millis() - previousMillis > displayBlinkRate) && displayBlinkEnabled) {
     displayState = !displayState;
-    display.setIntensity(
-        0, (MAX_INTENSITY *
-            displayState)); // Will toggle between 0 and MAX_INTENSITY
+
+    if (displayState) {
+      display.setIntensity(0, MAX_INTENSITY);
+    } else {
+      display.setIntensity(0, MIN_INTENSITY);
+    }
+
     previousMillis = millis();
   }
 }

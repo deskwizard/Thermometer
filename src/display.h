@@ -2,7 +2,8 @@
 
 #include <Arduino.h>
 
-#define MAX_INTENSITY 8
+#define MAX_INTENSITY 11
+#define MIN_INTENSITY 3
 
 void initDisplay();
 void setDisplay(int16_t value);
