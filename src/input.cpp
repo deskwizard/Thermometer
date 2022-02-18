@@ -2,26 +2,30 @@
 #include "display.h"
 #include <Arduino.h>
 
-// FIXME: remove that
-#define USE_INT
-
 volatile uint8_t currentKeyState; // debounced state
 volatile uint8_t key_state;       // bit x = 1: key has changed state
 
-volatile uint8_t currentEnc1Pos = 0;
-uint8_t lastEnc1Pos = 0;
+volatile uint8_t currentEncoderPos = 0;
+uint8_t lastEncoderPos = 0;
 
-inline uint8_t getEnc1Pos(void) {
+extern bool lowAlarmAcknoledged;
+extern bool highAlarmAcknoledged;
+extern bool lowAlarmTriggered;
+extern bool highAlarmTriggered;
+extern bool temperatureUnit;
 
-  uint8_t enc1Pos = 0;
+// Read the encoder pins (called from ISR vector)
+inline uint8_t readEncoder(void) {
 
-  if (!bit_is_clear(ENC_PIN, ENC1_A))
-    enc1Pos |= (1 << 1);
+  uint8_t encoderPos = 0;
 
-  if (!bit_is_clear(ENC_PIN, ENC1_B))
-    enc1Pos |= (1 << 0);
+  if (!bit_is_clear(ENC_PIN, ENC_A))
+    encoderPos |= (1 << 1);
 
-  return enc1Pos;
+  if (!bit_is_clear(ENC_PIN, ENC_B))
+    encoderPos |= (1 << 0);
+
+  return encoderPos;
 }
 
 void initTimer() {
@@ -50,11 +54,11 @@ void initTimer() {
 
 void initInputs() {
   // Enable pullups on encoder A/B pins
-  ENC_PORT |= (1 << ENC1_A) | (1 << ENC1_B);
+  ENC_PORT |= (1 << ENC_A) | (1 << ENC_B);
 
   // Preload encoder position
-  currentEnc1Pos = getEnc1Pos();
-  lastEnc1Pos = currentEnc1Pos;
+  currentEncoderPos = readEncoder();
+  lastEncoderPos = currentEncoderPos;
 
   // Pins defaults to inputs, so we only need to set the pullups here
   // FIXME: use KEY_MASK instead  ?
@@ -69,7 +73,7 @@ void initInputs() {
 }
 
 // Function called from interrupt vector
-inline void pinRead() {
+inline void readKeys() {
 
   static uint8_t counter = 0xFF;
 
@@ -83,27 +87,16 @@ inline void pinRead() {
     // If it's the first time around, decrement the
     // counter once for next if statement
     if (counter == 0xFF) {
-
-#ifndef USE_INT
-      Serial.println("changed");
-#endif
       counter--;
-
       // If it's still different, shift the counter value
     } else if (counter > 0) {
 
       counter = counter >> 1;
-#ifndef USE_INT
-      Serial.println(counter);
-#endif
     }
 
     // If the counter reaches 0, consider the key debounced and reset the
     // debounce counter
     else {
-#ifndef USE_INT
-      Serial.println("saved");
-#endif
       key_state = i ^ currentKeyState;
       currentKeyState = i;
       counter = 0xFF;
@@ -112,44 +105,65 @@ inline void pinRead() {
 
   // If the pin read value changes back to the debounced state before the
   // debounce counter reaches 0, reset the debounce counter.
-
   else if (counter != 0xFF) {
-#ifndef USE_INT
-    Serial.println("reset");
-#endif
     counter = 0xFF;
   }
 
-} // pinRead
+} // readKeys
 
 void handleKeys() {
 
   if (key_state != 0) { // If it's not zero, some keys have changed.
 
     // This is just a routine to print the value in binary with leading zeroes.
-    Serial.print("      ");
-    for (uint8_t mask = 0x80; mask; mask >>= 1) {
-      if (mask & key_state) {
-        Serial.print('1');
-      } else {
-        Serial.print('0');
-      }
-    }
-    Serial.print("      ");
+    // Serial.print("      ");
+    // for (uint8_t mask = 0x80; mask; mask >>= 1) {
+    //   if (mask & key_state) {
+    //     Serial.print('1');
+    //   } else {
+    //     Serial.print('0');
+    //   }
+    // }
+    // Serial.print("      ");
 
     // A bit that reads as 1 means that key has changed state.
 
     if (bitRead(key_state, KEY0)) {
-      Serial.print("Key 0 - ");
+      Serial.print(F("Key 0 - "));
+
       if (bitRead(currentKeyState, KEY0)) {
-        Serial.println("Released");
+        Serial.println(F("Released"));
       } else {
         Serial.println(F("Pressed"));
+
+        if (lowAlarmTriggered && !lowAlarmAcknoledged) {
+          lowAlarmAcknoledged = true;
+          lowAlarmTriggered = false;
+          highAlarmAcknoledged = false;
+          digitalWrite(LED_BLUE, LOW);
+          Serial.println(F("Low alarm ack"));
+        }
+
+        if (highAlarmTriggered && !highAlarmAcknoledged) {
+          highAlarmAcknoledged = true;
+          highAlarmTriggered = false;
+          lowAlarmAcknoledged = false;
+          digitalWrite(LED_RED, LOW);
+          Serial.println(F("High alarm ack"));
+        }
       }
     }
+
     if (bitRead(key_state, KEY1)) {
-      Serial.print("Key 1 - ");
-      Serial.println(bitRead(currentKeyState, KEY1));
+
+      Serial.print(F("Key 1 - "));
+      if (bitRead(currentKeyState, KEY1)) {
+        Serial.println(F("Released"));
+      } else {
+        Serial.println(F("Pressed"));
+        temperatureUnit = !temperatureUnit;
+        updateUnits();
+      }
     }
 
     // all keys have been checked, reset key_state
@@ -158,17 +172,17 @@ void handleKeys() {
 }
 
 void handleEncoder() {
-  if (currentEnc1Pos != lastEnc1Pos) {
+  if (currentEncoderPos != lastEncoderPos) {
 
-    if ((currentEnc1Pos == 3 && lastEnc1Pos == 1) ||
-        (currentEnc1Pos == 0 && lastEnc1Pos == 2)) {
+    if ((currentEncoderPos == 3 && lastEncoderPos == 1) ||
+        (currentEncoderPos == 0 && lastEncoderPos == 2)) {
       Serial.println(F("1 +"));
-    } else if ((currentEnc1Pos == 2 && lastEnc1Pos == 0) ||
-               (currentEnc1Pos == 1 && lastEnc1Pos == 3)) {
+    } else if ((currentEncoderPos == 2 && lastEncoderPos == 0) ||
+               (currentEncoderPos == 1 && lastEncoderPos == 3)) {
       Serial.println(F("1 -"));
     }
 
-    lastEnc1Pos = currentEnc1Pos;
+    lastEncoderPos = currentEncoderPos;
   }
 }
 
@@ -178,9 +192,6 @@ void handleInputs() {
 }
 
 ISR(TIMER2_COMPA_vect) {
-
-  // Key(s) debouncing function
-  pinRead();
-
-  currentEnc1Pos = getEnc1Pos();
+  readKeys();
+  currentEncoderPos = readEncoder();
 }

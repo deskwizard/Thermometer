@@ -8,8 +8,8 @@
 #define ENC_PIN PINC
 #define ENC_DDR DDRC
 #define ENC_PORT PORTC
-#define ENC1_A PC2
-#define ENC1_B PC1
+#define ENC_A PC2
+#define ENC_B PC1
 
 // Keys
 #define KEY_PIN PINC
