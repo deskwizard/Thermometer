@@ -140,15 +140,15 @@ void handleAlarms() {
       !lowAlarmTriggered) {
     Serial.println("Low Temperature Alarm");
     lowAlarmTriggered = true;
+    blinkDisplay(true);
   }
 
   if (tempC >= highAlarmValue && !highAlarmAcknoledged && !highAlarmTriggered) {
     Serial.println("High Temperature Alarm");
     highAlarmTriggered = true;
+    blinkDisplay(true);
   }
-  // }
 
-  // void handleLEDs() {
   static bool ledState;
   static uint32_t previousMillis = millis();
   if (millis() - previousMillis > 1000) {

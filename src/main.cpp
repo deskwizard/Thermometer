@@ -16,6 +16,7 @@
 void loop() {
   handleSensors();
   handleInputs();
+  handleDisplay();
 }
 
 void setup() {

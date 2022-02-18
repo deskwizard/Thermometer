@@ -6,6 +6,9 @@
 
 LedControl display = LedControl(12, 13, 10, 1);
 
+bool displayBlinkEnabled = false;
+uint16_t displayBlinkRate = 500;
+
 extern int16_t tempC, tempF;
 extern bool temperatureUnit;
 
@@ -15,7 +18,7 @@ void initDisplay() {
   // Enable Display...
   display.shutdown(0, false);
   // Set the brightness to a medium values...
-  display.setIntensity(0, 8);
+  display.setIntensity(0, MAX_INTENSITY);
   // and clear the display.
   display.clearDisplay(0);
 
@@ -92,4 +95,30 @@ void setDisplay(int16_t value) {
   // Serial.print("  Os: ");
   // Serial.println(ones);
   // Serial.println();
+}
+
+void blinkDisplay(bool enabled, uint16_t rate) {
+  // displayBlinkEnabled = enabled;
+  displayBlinkRate = rate;
+  blinkDisplay(enabled);
+}
+
+void blinkDisplay(bool enabled) {
+  displayBlinkEnabled = enabled;
+  if (!enabled) {
+    display.setIntensity(0, MAX_INTENSITY);  // Restore intensity
+  }
+}
+
+void handleDisplay() {
+
+  static bool displayState;
+  static uint32_t previousMillis = millis();
+  if ((millis() - previousMillis > displayBlinkRate) && displayBlinkEnabled) {
+    displayState = !displayState;
+    display.setIntensity(
+        0, (MAX_INTENSITY *
+            displayState)); // Will toggle between 0 and MAX_INTENSITY
+    previousMillis = millis();
+  }
 }

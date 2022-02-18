@@ -142,6 +142,7 @@ void handleKeys() {
           highAlarmAcknoledged = false;
           digitalWrite(LED_BLUE, LOW);
           Serial.println(F("Low alarm ack"));
+          blinkDisplay(false);
         }
 
         if (highAlarmTriggered && !highAlarmAcknoledged) {
@@ -150,6 +151,7 @@ void handleKeys() {
           lowAlarmAcknoledged = false;
           digitalWrite(LED_RED, LOW);
           Serial.println(F("High alarm ack"));
+          blinkDisplay(false);
         }
       }
     }
