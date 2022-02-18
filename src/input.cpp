@@ -1,18 +1,16 @@
 #include "input.h"
-#include <Arduino.h>
 #include "display.h"
-
+#include <Arduino.h>
 
 // TODO: Key release "event"
 
-volatile unsigned char currentEnc1Pos = 0;
-unsigned char lastEnc1Pos = 0;
+volatile uint8_t currentEnc1Pos = 0;
+uint8_t lastEnc1Pos = 0;
 
 // Debouncing variables
-unsigned char
-    key_state; // Debounced and inverted key state: bit = 1: key pressed
-volatile unsigned char key_press;     // Key press detect
-unsigned char ct0 = 0xFF, ct1 = 0xFF; // Internal debouncing states
+uint8_t key_state;          // Debounced and inverted key state: 1= key pressed
+volatile uint8_t key_press; // Key press detect
+uint8_t ct0 = 0xFF, ct1 = 0xFF; // Internal debouncing states
 
 extern bool lowAlarmAcknoledged;
 extern bool highAlarmAcknoledged;
@@ -33,7 +31,7 @@ inline uint8_t getEnc1Pos(void) {
   return enc1Pos;
 }
 
-unsigned char get_key_press(unsigned char key_mask) {
+uint8_t get_key_press(uint8_t key_mask) {
   cli();
   key_mask &= key_press; // read key(s)
   key_press ^= key_mask; // clear key(s)
@@ -127,7 +125,7 @@ void read_encoders() {
 ISR(TIMER2_COMPA_vect) {
 
   // Key(s) debouncing routine
-  unsigned char i;
+  uint8_t i;
 
   i = key_state ^ ~KEY_PIN;   // key changed ?
   ct0 = ~(ct0 & i);           // reset or count ct0
