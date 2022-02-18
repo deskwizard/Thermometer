@@ -1,7 +1,10 @@
 /*
 
-    
-
+    TODO: Add alarm setting capabilities:
+            - the display handling
+            - the keys handling
+            - (saving to eeprom) - sensor saves settings, maybe not required, just read from the sensor,
+              or set a profile, something....
 */
 
 
@@ -13,7 +16,7 @@
 void loop() {
   handleSensors();
   handleInputs();
-} // Loop
+}
 
 void setup() {
 

@@ -31,7 +31,6 @@ bool highAlarmTriggered = false;
 
 void printAlarmInfo(const DeviceAddress deviceAddress) {
   int8_t temp;
-  // printAddress(deviceAddress);
 
   Serial.print("Low: ");
   temp = sensors.getLowAlarmTemp(deviceAddress);
@@ -56,15 +55,24 @@ void initSensors() {
   if (!sensors.getAddress(thermometerAddr, 0)) {
     Serial.println("Unable to find address for Device 0");
   } else {
-    printAlarmInfo(thermometerAddr);
-  }
+    //printAlarmInfo(thermometerAddr);
 
+    lowAlarmValue = sensors.getLowAlarmTemp(thermometerAddr);
+    highAlarmValue = sensors.getHighAlarmTemp(thermometerAddr);
+
+    Serial.print("Current alarm values: ");
+    Serial.print("    Lo: ");
+    Serial.print(lowAlarmValue);
+    Serial.print("  °C   Hi: ");
+    Serial.print(highAlarmValue);
+    Serial.println("  °C");
+  }
   /*****************************************************************************/
 
   // set alarm ranges
-  Serial.println("Setting alarm temps...");
-  sensors.setHighAlarmTemp(thermometerAddr, highAlarmValue);
-  sensors.setLowAlarmTemp(thermometerAddr, lowAlarmValue);
+  // Serial.println("Setting alarm temps...");
+  // sensors.setHighAlarmTemp(thermometerAddr, highAlarmValue);
+  // sensors.setLowAlarmTemp(thermometerAddr, lowAlarmValue);
   /*
     Serial.print("New alarm values - ");
     printAlarmInfo(thermometerAddr);
@@ -95,30 +103,30 @@ void handleSensors() {
     else {
       Serial.println("Error: Could not read temperature data");
     }
-/*
-    if (temperatureUnit == UNIT_F) {
+    /*
+        if (temperatureUnit == UNIT_F) {
 
-      // Check if reading was successful
-      if (tempF != DEVICE_DISCONNECTED_F) {
-        setDisplay(tempF);
-      }
-      // Otherwise we have a problem
-      else {
-        Serial.println("Error: Could not read temperature data");
-      }
-    }
-    // Else we are in Celcius mode
-    else {
-      if (tempC != DEVICE_DISCONNECTED_C) {
-        setDisplay(tempC);
-      }
+          // Check if reading was successful
+          if (tempF != DEVICE_DISCONNECTED_F) {
+            setDisplay(tempF);
+          }
+          // Otherwise we have a problem
+          else {
+            Serial.println("Error: Could not read temperature data");
+          }
+        }
+        // Else we are in Celcius mode
+        else {
+          if (tempC != DEVICE_DISCONNECTED_C) {
+            setDisplay(tempC);
+          }
 
-      // Otherwise we have a problem
-      else {
-        Serial.println("Error: Could not read temperature data");
-      }
-    }
-*/
+          // Otherwise we have a problem
+          else {
+            Serial.println("Error: Could not read temperature data");
+          }
+        }
+    */
     handleAlarms();
     // handleLEDs();
 
