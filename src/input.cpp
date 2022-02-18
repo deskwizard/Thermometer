@@ -158,6 +158,7 @@ void handleKeys() {
         } else {
           temperatureUnit = !temperatureUnit;
           updateUnits();
+          updateDisplay();
         }
       }
     }
@@ -172,8 +173,8 @@ void handleKeys() {
         // temperatureUnit = !temperatureUnit;
         // updateUnits();
         deviceMode++;
-        if (deviceMode > MODE_HUSET) {
-            deviceMode = MODE_RUN;
+        if (deviceMode > MODE_HSET) {
+          deviceMode = MODE_RUN;
         }
         Serial.print("Mode change to: ");
         Serial.println(deviceMode);
@@ -191,9 +192,22 @@ void handleEncoder() {
     if ((currentEncoderPos == 3 && lastEncoderPos == 1) ||
         (currentEncoderPos == 0 && lastEncoderPos == 2)) {
       Serial.println(F("1 +"));
+
+      if (deviceMode == MODE_USET) {
+        temperatureUnit = UNIT_C;
+        updateUnits();
+        updateDisplay();
+      }
+
     } else if ((currentEncoderPos == 2 && lastEncoderPos == 0) ||
                (currentEncoderPos == 1 && lastEncoderPos == 3)) {
       Serial.println(F("1 -"));
+
+      if (deviceMode == MODE_USET) {
+        temperatureUnit = UNIT_F;
+        updateUnits();
+        updateDisplay();
+      }
     }
 
     lastEncoderPos = currentEncoderPos;

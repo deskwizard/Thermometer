@@ -6,9 +6,7 @@
 #define UNIT_C true
 #define UNIT_F false
 
-
-#define MODE_RUN 1      
-#define MODE_LSET 2     // Low alarm temp
-#define MODE_HSET 3     // High alarm temp
-#define MODE_LUSET 5    // Low alarm unit
-#define MODE_HUSET 6    // High alarm unit
+#define MODE_RUN 1
+#define MODE_USET 2 // Measurement unit
+#define MODE_LSET 3 // Low alarm temp
+#define MODE_HSET 4 // High alarm temp

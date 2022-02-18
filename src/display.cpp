@@ -18,7 +18,7 @@ extern int16_t highAlarmValue;
 extern uint8_t deviceMode;
 
 int16_t CtoF(int16_t celsius) {
-	return (int16_t)((float)celsius * 1.8f) + 32.0f;
+  return (int16_t)((float)celsius * 1.8f) + 32.0f;
 }
 
 void initDisplay() {
@@ -48,12 +48,12 @@ void initDisplay() {
 }
 
 void updateUnits() {
+  display.setRow(0, 4, B01100011); // Degree sign
   if (temperatureUnit == UNIT_F) {
     display.setChar(0, 5, 'F', false);
   } else {
     display.setRow(0, 5, B01001110); // Uppercase C
   }
-  updateDisplay();
 }
 
 void updateDisplay() {
@@ -68,12 +68,15 @@ void updateDisplay() {
     case MODE_HSET:
       setDisplay(highAlarmValue);
       break;
-    case MODE_LUSET:
+    case MODE_USET:
+      display.setChar(0, 0, 'U', false);
+      display.setChar(0, 1, ' ', false);
+      display.setChar(0, 2, ' ', false);
+      display.setChar(0, 3, ' ', false);
 
+      //updateUnits();
       break;
-    case MODE_HUSET:
 
-      break;
     }
   } else {
     switch (deviceMode) {
@@ -86,10 +89,7 @@ void updateDisplay() {
     case MODE_HSET:
       setDisplay(CtoF(highAlarmValue));
       break;
-    case MODE_LUSET:
-
-      break;
-    case MODE_HUSET:
+    case MODE_USET:
 
       break;
     }
