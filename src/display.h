@@ -6,8 +6,8 @@
 #define MIN_INTENSITY 3
 
 void initDisplay();
-void setDisplay(int16_t value);
-void setDisplay(int16_t value, uint8_t digitOffset);
+void setDisplay(float value);
+void setDisplay(float value, uint8_t digitOffset);
 void updateUnits();
 void updateDisplay();
 void handleDisplay();

@@ -11,7 +11,7 @@ DallasTemperature sensors(&oneWire);
 DeviceAddress thermometerAddr;
 
 bool temperatureUnit = UNIT_C; // false = F, true = C
-int16_t tempC;
+float sensorTemperatureC;
 
 int16_t lowAlarmValue = 22;  // 40; // 104F
 int16_t highAlarmValue = 25; // 60; // 140F
@@ -44,7 +44,7 @@ void initSensors() {
   sensors.begin();
   sensors.setResolution(9);
   if (!sensors.getAddress(thermometerAddr, 0)) {
-    Serial.println("Unable to find address for Device 0");
+    Serial.println(F("Unable to find address for Device 0"));
   } else {
     // printAlarmInfo(thermometerAddr);
 
@@ -76,22 +76,35 @@ void handleSensors() {
   if (millis() - lastSensorRead > 500) {
 
     sensors.requestTemperatures();
-    tempC = (int16_t)(sensors.getTempC(thermometerAddr) + 0.5);
+    //    tempC = (int16_t)(sensors.getTempC(thermometerAddr) + 0.5);
 
-    // Serial.print("F: ");
-    // Serial.print(tempF);
-    // Serial.print("  C: ");
-    // Serial.println(tempC);
+    sensorTemperatureC = sensors.getTempC(thermometerAddr);
+/*
+    float floatF = sensors.getTempF(thermometerAddr);
+    uint16_t tempF = (int16_t)(floatF + 0.5);
+    float floatF2 = sensors.toFahrenheit(sensorTemperatureC);
+    // int16_t converted = (int16_t)((float)tempC2 * 1.8f) + 32.0f;
+    //float floatF3 = (floatC * 1.8f) + 32.0f;
 
+    Serial.print("Ff: ");
+    Serial.print(floatF);
+    Serial.print("  Fr: ");
+    Serial.print(tempF);
+    Serial.print("  Fcs: ");
+    Serial.print(floatF2);
+    Serial.print("  Cf: ");
+    Serial.println(sensorTemperatureC);
+
+*/
     // FIXME:
     // Check for error with C, because it's an integer and F is a float.
     // double check the cast w/ rounding doesn't mess you up.
-    if (tempC != DEVICE_DISCONNECTED_C) {
+    if (sensorTemperatureC != DEVICE_DISCONNECTED_C) {
       updateDisplay();
     }
     // Otherwise we have a problem
     else {
-      Serial.println("Error: Could not read temperature data");
+      Serial.println(F("Error: Could not read temperature data"));
     }
 
     handleAlarms();
@@ -102,15 +115,18 @@ void handleSensors() {
 
 void handleAlarms() {
 
+  // FIXME: temp is a float now, we need to fix this ASAP
+  int16_t tempC = (int16_t)(sensorTemperatureC + 0.5);
+
   if (tempC <= lowAlarmValue && !lowAlarmAcknoledged && highAlarmAcknoledged &&
       !lowAlarmTriggered) {
-    Serial.println("Low Temperature Alarm");
+    Serial.println(F("Low Temperature Alarm"));
     lowAlarmTriggered = true;
     blinkDisplay(true);
   }
 
   if (tempC >= highAlarmValue && !highAlarmAcknoledged && !highAlarmTriggered) {
-    Serial.println("High Temperature Alarm");
+    Serial.println(F("High Temperature Alarm"));
     highAlarmTriggered = true;
     blinkDisplay(true);
   }

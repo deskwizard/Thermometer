@@ -11,15 +11,21 @@ bool displayBlinkEnabled = false;
 uint16_t displayBlinkRate = 500;
 uint8_t displayIntensity = MAX_INTENSITY;
 
-extern int16_t tempC;
+extern float sensorTemperatureC;
 extern bool temperatureUnit;
 extern int16_t lowAlarmValue;
 extern int16_t highAlarmValue;
 extern uint8_t deviceMode;
-
+/*
 int16_t CtoF(int16_t celsius) {
   return (int16_t)((float)celsius * 1.8f) + 32.0f;
 }
+*/
+// FIXME: put that somewhere else
+float CtoF(float celsius) {
+	return (celsius * 1.8f) + 32.0f;
+}
+
 
 void initDisplay() {
 
@@ -60,7 +66,7 @@ void updateUnits() {
 void updateDisplay() {
 
   if (deviceMode == MODE_RUN) {
-    setDisplay(tempC);
+    setDisplay(sensorTemperatureC);
   } 
   else {
 
@@ -87,26 +93,31 @@ void updateDisplay() {
   }
 }
 
-void setDisplay(int16_t value) { setDisplay(value, 0); }
+void setDisplay(float value) { setDisplay(value, 0); }
 
-void setDisplay(int16_t value, uint8_t digitOffset) {
+void setDisplay(float value, uint8_t digitOffset) {
 
   // Serial.print("Value: ");
   // Serial.print(value);
+
+  // FIXME: deal with the F display (and rounding up ?)
+  
 
   if (temperatureUnit == UNIT_F) {
     value = CtoF(value);
   }
 
-  if (value < 0) {
+  if (value < 0.0) {
     display.setChar(0, 0 + digitOffset, '-', false);
   } else {
     display.setChar(0, 0 + digitOffset, ' ', false);
   }
 
+  value = value + 0.5;
+
   int16_t hundreds = value / 100;
-  int16_t tens = (value / 10) % 10;
-  int16_t ones = value % 10;
+  int16_t tens = ((int16_t)value / 10) % 10;
+  int16_t ones = (int16_t)value % 10;
 
   if (hundreds == 0) {
     display.setChar(0, 1 + digitOffset, ' ', false);
