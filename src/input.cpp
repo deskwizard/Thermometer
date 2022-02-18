@@ -175,6 +175,8 @@ void handleKeys() {
         deviceMode++;
         if (deviceMode > MODE_HSET) {
           deviceMode = MODE_RUN;
+          updateUnits(); // redraw the ° and unit
+          updateDisplay();
         }
         Serial.print("Mode change to: ");
         Serial.println(deviceMode);

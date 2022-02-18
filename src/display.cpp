@@ -63,20 +63,27 @@ void updateDisplay() {
       setDisplay(tempC);
       break;
     case MODE_LSET:
-      setDisplay(lowAlarmValue);
+      display.setChar(0, 0, 'L', false);
+      display.setChar(0, 1, 'o', true);
+      display.setChar(0, 2, ' ', true);
+      display.setChar(0, 3, ' ', false);
+      setDisplay(lowAlarmValue, 2);
       break;
     case MODE_HSET:
-      setDisplay(highAlarmValue);
+      display.setChar(0, 0, 'H', false);
+      //display.setChar(0, 1, 'i', true);
+      display.setRow(0, 1, B10010000); // Lowercase i w/ dp
+      display.setChar(0, 2, ' ', true);
+      display.setChar(0, 3, ' ', false);
+      setDisplay(highAlarmValue, 2);
       break;
     case MODE_USET:
-      display.setChar(0, 0, 'U', false);
-      display.setChar(0, 1, ' ', false);
-      display.setChar(0, 2, ' ', false);
+      //display.setChar(0, 0, 'U', false);
+      display.setRow(0, 0, B00111110); // Uppercase U
+      display.setChar(0, 1, 'n', true);
+      display.setChar(0, 2, ' ', true);
       display.setChar(0, 3, ' ', false);
-
-      //updateUnits();
       break;
-
     }
   } else {
     switch (deviceMode) {
@@ -84,26 +91,42 @@ void updateDisplay() {
       setDisplay(CtoF(tempC));
       break;
     case MODE_LSET:
-      setDisplay(CtoF(lowAlarmValue));
+      display.setChar(0, 0, 'L', false);
+      display.setChar(0, 1, 'o', true);
+      display.setChar(0, 2, ' ', true);
+      display.setChar(0, 3, ' ', false);
+      setDisplay(CtoF(lowAlarmValue), 2);
       break;
     case MODE_HSET:
-      setDisplay(CtoF(highAlarmValue));
+      display.setChar(0, 0, 'H', false);
+      //display.setChar(0, 1, 'i', true);
+      display.setRow(0, 1, B00010000); // Lowercase i
+      display.setChar(0, 2, ' ', true);
+      display.setChar(0, 3, ' ', false);
+      setDisplay(CtoF(highAlarmValue), 2);
       break;
     case MODE_USET:
-
+      //display.setChar(0, 0, 'U', false);
+      display.setRow(0, 0, B00111110); // Uppercase U
+      display.setChar(0, 1, 'n', true);
+      display.setChar(0, 2, ' ', true);
+      display.setChar(0, 3, ' ', false);
       break;
     }
   }
 }
-void setDisplay(int16_t value) {
+
+void setDisplay(int16_t value) { setDisplay(value, 0); }
+
+void setDisplay(int16_t value, int8_t digitOffset) {
 
   // Serial.print("Value: ");
   // Serial.print(value);
 
   if (value < 0) {
-    display.setChar(0, 0, '-', false);
+    display.setChar(0, 0 + digitOffset, '-', false);
   } else {
-    display.setChar(0, 0, ' ', false);
+    display.setChar(0, 0 + digitOffset, ' ', false);
   }
 
   int16_t hundreds = value / 100;
@@ -111,18 +134,18 @@ void setDisplay(int16_t value) {
   int16_t ones = value % 10;
 
   if (hundreds == 0) {
-    display.setChar(0, 1, ' ', false);
+    display.setChar(0, 1 + digitOffset, ' ', false);
   } else {
-    display.setDigit(0, 1, hundreds, false);
+    display.setDigit(0, 1 + digitOffset, hundreds, false);
   }
 
   if (hundreds == 0 && tens == 0) {
-    display.setChar(0, 2, ' ', false);
+    display.setChar(0, 2 + digitOffset, ' ', false);
   } else {
-    display.setDigit(0, 2, tens, false);
+    display.setDigit(0, 2 + digitOffset, tens, false);
   }
 
-  display.setDigit(0, 3, ones, false);
+  display.setDigit(0, 3 + digitOffset, ones, false);
 
   // Serial.print("   H: ");
   // Serial.print(hundreds);
