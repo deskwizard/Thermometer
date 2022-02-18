@@ -11,11 +11,15 @@ bool displayBlinkEnabled = false;
 uint16_t displayBlinkRate = 500;
 uint8_t displayIntensity = MAX_INTENSITY;
 
-extern int16_t tempC, tempF;
+extern int16_t tempC;
 extern bool temperatureUnit;
 extern int16_t lowAlarmValue;
 extern int16_t highAlarmValue;
 extern uint8_t deviceMode;
+
+int16_t CtoF(int16_t celsius) {
+	return (int16_t)((float)celsius * 1.8f) + 32.0f;
+}
 
 void initDisplay() {
 
@@ -53,30 +57,44 @@ void updateUnits() {
 }
 
 void updateDisplay() {
-
-  switch (deviceMode) {
-  case MODE_RUN:
-    if (temperatureUnit == UNIT_F) {
-      setDisplay(tempF);
-    } else {
+  if (temperatureUnit == UNIT_C) {
+    switch (deviceMode) {
+    case MODE_RUN:
       setDisplay(tempC);
+      break;
+    case MODE_LSET:
+      setDisplay(lowAlarmValue);
+      break;
+    case MODE_HSET:
+      setDisplay(highAlarmValue);
+      break;
+    case MODE_LUSET:
+
+      break;
+    case MODE_HUSET:
+
+      break;
     }
-    break;
-  case MODE_LSET:
-    setDisplay(lowAlarmValue);
-    break;
-  case MODE_HSET:
-    setDisplay(highAlarmValue);
-    break;
-  case MODE_LUSET:
+  } else {
+    switch (deviceMode) {
+    case MODE_RUN:
+      setDisplay(CtoF(tempC));
+      break;
+    case MODE_LSET:
+      setDisplay(CtoF(lowAlarmValue));
+      break;
+    case MODE_HSET:
+      setDisplay(CtoF(highAlarmValue));
+      break;
+    case MODE_LUSET:
 
-    break;
-  case MODE_HUSET:
+      break;
+    case MODE_HUSET:
 
-    break;
+      break;
+    }
   }
 }
-
 void setDisplay(int16_t value) {
 
   // Serial.print("Value: ");

@@ -5,8 +5,6 @@
             - the keys handling
             - (saving to eeprom) - sensor saves settings, maybe not required,
    just read from the sensor, or set a profile, something....
-
-          Handle everything in °C in the background (simpler for alarms)
 */
 
 #include "defines.h"
