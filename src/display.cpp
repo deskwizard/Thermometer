@@ -57,60 +57,30 @@ void updateUnits() {
 }
 
 void updateDisplay() {
-  if (temperatureUnit == UNIT_C) {
+
+  if (deviceMode == MODE_RUN) {
+    setDisplay(tempC);
+  } 
+  else {
+
+    display.setChar(0, 2, ' ', true);
+    display.setChar(0, 3, ' ', false);
+
     switch (deviceMode) {
-    case MODE_RUN:
-      setDisplay(tempC);
-      break;
+
     case MODE_LSET:
       display.setChar(0, 0, 'L', false);
       display.setChar(0, 1, 'o', true);
-      display.setChar(0, 2, ' ', true);
-      display.setChar(0, 3, ' ', false);
       setDisplay(lowAlarmValue, 2);
       break;
     case MODE_HSET:
       display.setChar(0, 0, 'H', false);
-      //display.setChar(0, 1, 'i', true);
-      display.setRow(0, 1, B10010000); // Lowercase i w/ dp
-      display.setChar(0, 2, ' ', true);
-      display.setChar(0, 3, ' ', false);
+      display.setRow(0, 1, B10000100); // Lowercase i w/ dp
       setDisplay(highAlarmValue, 2);
       break;
     case MODE_USET:
-      //display.setChar(0, 0, 'U', false);
       display.setRow(0, 0, B00111110); // Uppercase U
       display.setChar(0, 1, 'n', true);
-      display.setChar(0, 2, ' ', true);
-      display.setChar(0, 3, ' ', false);
-      break;
-    }
-  } else {
-    switch (deviceMode) {
-    case MODE_RUN:
-      setDisplay(CtoF(tempC));
-      break;
-    case MODE_LSET:
-      display.setChar(0, 0, 'L', false);
-      display.setChar(0, 1, 'o', true);
-      display.setChar(0, 2, ' ', true);
-      display.setChar(0, 3, ' ', false);
-      setDisplay(CtoF(lowAlarmValue), 2);
-      break;
-    case MODE_HSET:
-      display.setChar(0, 0, 'H', false);
-      //display.setChar(0, 1, 'i', true);
-      display.setRow(0, 1, B00010000); // Lowercase i
-      display.setChar(0, 2, ' ', true);
-      display.setChar(0, 3, ' ', false);
-      setDisplay(CtoF(highAlarmValue), 2);
-      break;
-    case MODE_USET:
-      //display.setChar(0, 0, 'U', false);
-      display.setRow(0, 0, B00111110); // Uppercase U
-      display.setChar(0, 1, 'n', true);
-      display.setChar(0, 2, ' ', true);
-      display.setChar(0, 3, ' ', false);
       break;
     }
   }
@@ -118,10 +88,14 @@ void updateDisplay() {
 
 void setDisplay(int16_t value) { setDisplay(value, 0); }
 
-void setDisplay(int16_t value, int8_t digitOffset) {
+void setDisplay(int16_t value, uint8_t digitOffset) {
 
   // Serial.print("Value: ");
   // Serial.print(value);
+
+  if (temperatureUnit == UNIT_F) {
+    value = CtoF(value);
+  }
 
   if (value < 0) {
     display.setChar(0, 0 + digitOffset, '-', false);

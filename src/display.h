@@ -7,7 +7,7 @@
 
 void initDisplay();
 void setDisplay(int16_t value);
-void setDisplay(int16_t value, int8_t digitOffset);
+void setDisplay(int16_t value, uint8_t digitOffset);
 void updateUnits();
 void updateDisplay();
 void handleDisplay();
