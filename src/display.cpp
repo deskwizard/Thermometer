@@ -54,6 +54,7 @@ void updateUnits() {
   } else {
     display.setRow(0, 5, B01001110); // Uppercase C
   }
+  updateDisplay();
 }
 
 void updateDisplay() {

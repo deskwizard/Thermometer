@@ -9,6 +9,8 @@ volatile uint8_t key_state;       // bit x = 1: key has changed state
 volatile uint8_t currentEncoderPos = 0;
 uint8_t lastEncoderPos = 0;
 
+extern int16_t lowAlarmValue;
+extern int16_t highAlarmValue;
 extern bool lowAlarmAcknoledged;
 extern bool highAlarmAcknoledged;
 extern bool lowAlarmTriggered;
@@ -198,6 +200,11 @@ void handleEncoder() {
       if (deviceMode == MODE_USET) {
         temperatureUnit = UNIT_C;
         updateUnits();
+      } else if (deviceMode == MODE_LSET) {
+        lowAlarmValue++;
+        updateDisplay();
+      } else if (deviceMode == MODE_HSET) {
+        highAlarmValue++;
         updateDisplay();
       }
 
@@ -208,6 +215,11 @@ void handleEncoder() {
       if (deviceMode == MODE_USET) {
         temperatureUnit = UNIT_F;
         updateUnits();
+      } else if (deviceMode == MODE_LSET) {
+        lowAlarmValue--;
+        updateDisplay();
+      } else if (deviceMode == MODE_HSET) {
+        highAlarmValue--;
         updateDisplay();
       }
     }

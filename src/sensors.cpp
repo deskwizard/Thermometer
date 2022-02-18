@@ -76,7 +76,6 @@ void handleSensors() {
   if (millis() - lastSensorRead > 500) {
 
     sensors.requestTemperatures();
-    //tempF = (int16_t)(sensors.getTempF(thermometerAddr) + 0.5);
     tempC = (int16_t)(sensors.getTempC(thermometerAddr) + 0.5);
 
     // Serial.print("F: ");
