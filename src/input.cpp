@@ -1,4 +1,5 @@
 #include "input.h"
+#include "defines.h"
 #include "display.h"
 #include <Arduino.h>
 
@@ -13,6 +14,8 @@ extern bool highAlarmAcknoledged;
 extern bool lowAlarmTriggered;
 extern bool highAlarmTriggered;
 extern bool temperatureUnit;
+
+extern uint8_t deviceMode;
 
 // Read the encoder pins (called from ISR vector)
 inline uint8_t readEncoder(void) {
@@ -145,26 +148,35 @@ void handleKeys() {
           blinkDisplay(false);
         }
 
-        if (highAlarmTriggered && !highAlarmAcknoledged) {
+        else if (highAlarmTriggered && !highAlarmAcknoledged) {
           highAlarmAcknoledged = true;
           highAlarmTriggered = false;
           lowAlarmAcknoledged = false;
           digitalWrite(LED_RED, LOW);
           Serial.println(F("High alarm ack"));
           blinkDisplay(false);
+        } else {
+          temperatureUnit = !temperatureUnit;
+          updateUnits();
         }
       }
     }
 
-    if (bitRead(key_state, KEY1)) {
+    if (bitRead(key_state, KEY1)) { // Encoder pushbutton
 
       Serial.print(F("Key 1 - "));
       if (bitRead(currentKeyState, KEY1)) {
         Serial.println(F("Released"));
       } else {
         Serial.println(F("Pressed"));
-        temperatureUnit = !temperatureUnit;
-        updateUnits();
+        // temperatureUnit = !temperatureUnit;
+        // updateUnits();
+        deviceMode++;
+        if (deviceMode > MODE_HUSET) {
+            deviceMode = MODE_RUN;
+        }
+        Serial.print("Mode change to: ");
+        Serial.println(deviceMode);
       }
     }
 

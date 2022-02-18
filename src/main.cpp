@@ -3,15 +3,19 @@
     TODO: Add alarm setting capabilities:
             - the display handling
             - the keys handling
-            - (saving to eeprom) - sensor saves settings, maybe not required, just read from the sensor,
-              or set a profile, something....
+            - (saving to eeprom) - sensor saves settings, maybe not required,
+   just read from the sensor, or set a profile, something....
+
+          Handle everything in °C in the background (simpler for alarms)
 */
 
-
+#include "defines.h"
 #include "display.h"
 #include "input.h"
 #include "sensors.h"
 #include <Arduino.h>
+
+uint8_t deviceMode = MODE_RUN;
 
 void loop() {
   handleSensors();

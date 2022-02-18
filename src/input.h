@@ -1,8 +1,5 @@
 #pragma once
 
-#define LED_BLUE 19
-#define LED_RED 18
-
 // FIXME: Encoder is a bit dicky... dirty/old encoder?
 // Rotary Encoders
 #define ENC_PIN PINC

@@ -1,5 +1,6 @@
 #include "display.h"
 #include "LedControl.h"
+#include "defines.h"
 
 #define UNIT_C true
 #define UNIT_F false
@@ -12,6 +13,9 @@ uint8_t displayIntensity = MAX_INTENSITY;
 
 extern int16_t tempC, tempF;
 extern bool temperatureUnit;
+extern int16_t lowAlarmValue;
+extern int16_t highAlarmValue;
+extern uint8_t deviceMode;
 
 void initDisplay() {
 
@@ -50,10 +54,26 @@ void updateUnits() {
 
 void updateDisplay() {
 
-  if (temperatureUnit == UNIT_F) {
-    setDisplay(tempF);
-  } else {
-    setDisplay(tempC);
+  switch (deviceMode) {
+  case MODE_RUN:
+    if (temperatureUnit == UNIT_F) {
+      setDisplay(tempF);
+    } else {
+      setDisplay(tempC);
+    }
+    break;
+  case MODE_LSET:
+    setDisplay(lowAlarmValue);
+    break;
+  case MODE_HSET:
+    setDisplay(highAlarmValue);
+    break;
+  case MODE_LUSET:
+
+    break;
+  case MODE_HUSET:
+
+    break;
   }
 }
 

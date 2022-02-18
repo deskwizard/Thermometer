@@ -1,17 +1,9 @@
 #include "sensors.h"
+#include "defines.h"
 #include "display.h"
 #include <Arduino.h>
 #include <DallasTemperature.h>
 #include <OneWire.h>
-
-#define LED_BLUE 19
-#define LED_RED 18
-
-#define UNIT_C true
-#define UNIT_F false
-
-// OneWire Bus pin (requires 4.7K external pullup)
-#define ONE_WIRE_BUS 7
 
 OneWire oneWire(ONE_WIRE_BUS);
 // Pass our oneWire reference to Dallas Temperature.
@@ -55,7 +47,7 @@ void initSensors() {
   if (!sensors.getAddress(thermometerAddr, 0)) {
     Serial.println("Unable to find address for Device 0");
   } else {
-    //printAlarmInfo(thermometerAddr);
+    // printAlarmInfo(thermometerAddr);
 
     lowAlarmValue = sensors.getLowAlarmTemp(thermometerAddr);
     highAlarmValue = sensors.getHighAlarmTemp(thermometerAddr);
