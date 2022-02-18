@@ -8,6 +8,22 @@
 volatile uint8_t currentKeyState; // debounced state
 volatile uint8_t key_state;       // bit x = 1: key has changed state
 
+volatile uint8_t currentEnc1Pos = 0;
+uint8_t lastEnc1Pos = 0;
+
+inline uint8_t getEnc1Pos(void) {
+
+  uint8_t enc1Pos = 0;
+
+  if (!bit_is_clear(ENC_PIN, ENC1_A))
+    enc1Pos |= (1 << 1);
+
+  if (!bit_is_clear(ENC_PIN, ENC1_B))
+    enc1Pos |= (1 << 0);
+
+  return enc1Pos;
+}
+
 void initTimer() {
 
   // TIMER 2 for interrupt frequency 1000 Hz:
@@ -33,10 +49,16 @@ void initTimer() {
 }
 
 void initInputs() {
+  // Enable pullups on encoder A/B pins
+  ENC_PORT |= (1 << ENC1_A) | (1 << ENC1_B);
+
+  // Preload encoder position
+  currentEnc1Pos = getEnc1Pos();
+  lastEnc1Pos = currentEnc1Pos;
 
   // Pins defaults to inputs, so we only need to set the pullups here
   // FIXME: use KEY_MASK instead  ?
-  KEY_PORT |= (1 << KEY0) | (1 << KEY1);
+  KEY_PORT |= KEY_MASK;
 
   // We need to pre-load the current values,
   // otherwise it might trigger on powerup/reset
@@ -135,9 +157,24 @@ void handleKeys() {
   }
 }
 
+void handleEncoder() {
+  if (currentEnc1Pos != lastEnc1Pos) {
+
+    if ((currentEnc1Pos == 3 && lastEnc1Pos == 1) ||
+        (currentEnc1Pos == 0 && lastEnc1Pos == 2)) {
+      Serial.println(F("1 +"));
+    } else if ((currentEnc1Pos == 2 && lastEnc1Pos == 0) ||
+               (currentEnc1Pos == 1 && lastEnc1Pos == 3)) {
+      Serial.println(F("1 -"));
+    }
+
+    lastEnc1Pos = currentEnc1Pos;
+  }
+}
+
 void handleInputs() {
   handleKeys(); // React to debounced button(s)
-  // read_encoders();
+  handleEncoder();
 }
 
 ISR(TIMER2_COMPA_vect) {
@@ -145,5 +182,5 @@ ISR(TIMER2_COMPA_vect) {
   // Key(s) debouncing function
   pinRead();
 
-  // currentEnc1Pos = getEnc1Pos();
+  currentEnc1Pos = getEnc1Pos();
 }
