@@ -2,42 +2,11 @@
 #include "display.h"
 #include <Arduino.h>
 
-// TODO: Key release "event"
+// FIXME: remove that
+#define USE_INT
 
-volatile uint8_t currentEnc1Pos = 0;
-uint8_t lastEnc1Pos = 0;
-
-// Debouncing variables
-uint8_t key_state;          // Debounced and inverted key state: 1= key pressed
-volatile uint8_t key_press; // Key press detect
-uint8_t ct0 = 0xFF, ct1 = 0xFF; // Internal debouncing states
-
-extern bool lowAlarmAcknoledged;
-extern bool highAlarmAcknoledged;
-extern bool lowAlarmTriggered;
-extern bool highAlarmTriggered;
-extern bool temperatureUnit;
-
-inline uint8_t getEnc1Pos(void) {
-
-  uint8_t enc1Pos = 0;
-
-  if (!bit_is_clear(ENC_PIN, ENC1_A))
-    enc1Pos |= (1 << 1);
-
-  if (!bit_is_clear(ENC_PIN, ENC1_B))
-    enc1Pos |= (1 << 0);
-
-  return enc1Pos;
-}
-
-uint8_t get_key_press(uint8_t key_mask) {
-  cli();
-  key_mask &= key_press; // read key(s)
-  key_press ^= key_mask; // clear key(s)
-  sei();
-  return key_mask;
-}
+volatile uint8_t currentKeyState; // debounced state
+volatile uint8_t key_state;       // bit x = 1: key has changed state
 
 void initTimer() {
 
@@ -65,80 +34,116 @@ void initTimer() {
 
 void initInputs() {
 
-  ENC_PORT |= (1 << ENC1_A) | (1 << ENC1_B); // PC1 and PC2 Input w/ pull-up
+  // Pins defaults to inputs, so we only need to set the pullups here
+  // FIXME: use KEY_MASK instead  ?
+  KEY_PORT |= (1 << KEY0) | (1 << KEY1);
 
-  // Preload encoder position
-  currentEnc1Pos = getEnc1Pos();
-  lastEnc1Pos = currentEnc1Pos;
+  // We need to pre-load the current values,
+  // otherwise it might trigger on powerup/reset
+  currentKeyState = KEY_PIN & KEY_MASK;
 
-  KEY_PORT |= (1 << KEY0) | (1 << KEY1); // PC0 and PC3 Input w/ pull-up
-
-  // Preload debounce variable
-  key_state = ~KEY_PIN; // No action on keypress during reset
-
+  // Start timer
   initTimer();
 }
 
-void read_keys() {
+// Function called from interrupt vector
+inline void pinRead() {
 
-  if (get_key_press(1 << KEY0)) {
-    Serial.println("KEY0");
+  static uint8_t counter = 0xFF;
 
-    if (lowAlarmTriggered && !lowAlarmAcknoledged) {
-      lowAlarmAcknoledged = true;
-      lowAlarmTriggered = false;
-      highAlarmAcknoledged = false;
-      digitalWrite(LED_BLUE, LOW);
+  // Mask the pin read so we only get the bits
+  // we care about and ditch the others.
+  uint8_t i = KEY_PIN & KEY_MASK;
+
+  // If the current debounced keys differs from the pin read
+  if (i != currentKeyState) {
+
+    // If it's the first time around, decrement the
+    // counter once for next if statement
+    if (counter == 0xFF) {
+
+#ifndef USE_INT
+      Serial.println("changed");
+#endif
+      counter--;
+
+      // If it's still different, shift the counter value
+    } else if (counter > 0) {
+
+      counter = counter >> 1;
+#ifndef USE_INT
+      Serial.println(counter);
+#endif
     }
 
-    if (highAlarmTriggered && !highAlarmAcknoledged) {
-      highAlarmAcknoledged = true;
-      highAlarmTriggered = false;
-      lowAlarmAcknoledged = false;
-      digitalWrite(LED_RED, LOW);
+    // If the counter reaches 0, consider the key debounced and reset the
+    // debounce counter
+    else {
+#ifndef USE_INT
+      Serial.println("saved");
+#endif
+      key_state = i ^ currentKeyState;
+      currentKeyState = i;
+      counter = 0xFF;
     }
-  } // Key1
-
-  if (get_key_press(1 << KEY1)) {
-    Serial.println("KEY1");
-    temperatureUnit = !temperatureUnit;
-    updateUnits();
-  } // Key0
-
-} // debounce
-
-void read_encoders() {
-  if (currentEnc1Pos != lastEnc1Pos) {
-
-    if ((currentEnc1Pos == 3 && lastEnc1Pos == 1) ||
-        (currentEnc1Pos == 0 && lastEnc1Pos == 2)) {
-      Serial.println(F("1 +"));
-    } else if ((currentEnc1Pos == 2 && lastEnc1Pos == 0) ||
-               (currentEnc1Pos == 1 && lastEnc1Pos == 3)) {
-      Serial.println(F("1 -"));
-    }
-
-    lastEnc1Pos = currentEnc1Pos;
   }
+
+  // If the pin read value changes back to the debounced state before the
+  // debounce counter reaches 0, reset the debounce counter.
+
+  else if (counter != 0xFF) {
+#ifndef USE_INT
+    Serial.println("reset");
+#endif
+    counter = 0xFF;
+  }
+
+} // pinRead
+
+void handleKeys() {
+
+  if (key_state != 0) { // If it's not zero, some keys have changed.
+
+    // This is just a routine to print the value in binary with leading zeroes.
+    Serial.print("      ");
+    for (uint8_t mask = 0x80; mask; mask >>= 1) {
+      if (mask & key_state) {
+        Serial.print('1');
+      } else {
+        Serial.print('0');
+      }
+    }
+    Serial.print("      ");
+
+    // A bit that reads as 1 means that key has changed state.
+
+    if (bitRead(key_state, KEY0)) {
+      Serial.print("Key 0 - ");
+      if (bitRead(currentKeyState, KEY0)) {
+        Serial.println("Released");
+      } else {
+        Serial.println(F("Pressed"));
+      }
+    }
+    if (bitRead(key_state, KEY1)) {
+      Serial.print("Key 1 - ");
+      Serial.println(bitRead(currentKeyState, KEY1));
+    }
+
+    // all keys have been checked, reset key_state
+    key_state = 0;
+  }
+}
+
+void handleInputs() {
+  handleKeys(); // React to debounced button(s)
+  // read_encoders();
 }
 
 ISR(TIMER2_COMPA_vect) {
 
-  // Key(s) debouncing routine
-  uint8_t i;
+  // Key(s) debouncing function
+  pinRead();
 
-  i = key_state ^ ~KEY_PIN;   // key changed ?
-  ct0 = ~(ct0 & i);           // reset or count ct0
-  ct1 = ct0 ^ (ct1 & i);      // reset or count ct1
-  i &= ct0 & ct1;             // count until roll over ?
-  key_state ^= i;             // then toggle debounced state
-  key_press |= key_state & i; // 0 > 1: key press detect
-
-  currentEnc1Pos = getEnc1Pos();
-  // currentEnc2Pos = getEnc2Pos();
-}
-
-void handleInputs() {
-  read_keys(); // React to debounced button(s)
-  read_encoders();
+  // currentEnc1Pos = getEnc1Pos();
 }
