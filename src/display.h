@@ -6,11 +6,15 @@
 #define MIN_INTENSITY 2
 
 void initDisplay();
-void setDisplay(float value);
-void setDisplay(float value, uint8_t digitOffset);
-void updateUnits();
-void updateDisplayMode();
+
+void setDisplayMode();
+
 void updateDisplay();
+void updateDisplayTemp(float value);
+void updateDisplayMode(float value);
+void updateUnits();
+
 void handleDisplay();
+
 void blinkDisplay(bool enabled);
 void blinkDisplay(bool enabled, uint16_t rate);

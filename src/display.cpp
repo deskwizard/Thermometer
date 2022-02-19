@@ -56,13 +56,19 @@ void updateUnits() {
   updateDisplay();
 }
 
-void updateDisplayMode() {
+void setDisplayMode() {
 
   display.clearDisplay(0);
 
   switch (deviceMode) {
   case MODE_RUN:
     updateUnits(); // Redraws the degree sign and unit
+    break;
+  case MODE_USET:
+    display.setRow(0, 0, B00111110); // Uppercase U
+    display.setChar(0, 1, 'n', true);
+    display.setChar(0, 2, ' ', true);
+    updateUnits();
     break;
   case MODE_LSET:
     display.setChar(0, 0, 'L', false);
@@ -74,34 +80,27 @@ void updateDisplayMode() {
     display.setRow(0, 1, B10000100); // Lowercase i w/ dp
     updateDisplay();
     break;
-  case MODE_USET:
-    display.setRow(0, 0, B00111110); // Uppercase U
-    display.setChar(0, 1, 'n', true);
-    updateDisplay();
-    break;
   }
 }
 
 void updateDisplay() {
 
   if (deviceMode == MODE_RUN) {
-    setDisplay(sensorTemperatureC);
+    updateDisplayTemp(sensorTemperatureC);
   } else {
     switch (deviceMode) {
 
     case MODE_LSET:
-      setDisplay(lowAlarmValue, 2);
+      updateDisplayMode(lowAlarmValue);
       break;
     case MODE_HSET:
-      setDisplay(highAlarmValue, 2);
+      updateDisplayMode(highAlarmValue);
       break;
     }
   }
 }
 
-void setDisplay(float value) { setDisplay(value, 0); }
-
-void setDisplay(float value, uint8_t digitOffset) {
+void updateDisplayMode(float value) {
 
   // Serial.print("Value: ");
   // Serial.print(value);
@@ -110,31 +109,75 @@ void setDisplay(float value, uint8_t digitOffset) {
     value = CtoF(value);
   }
 
-  if (value < 0.0) {
-    display.setChar(0, 0 + digitOffset, '-', false);
-  } else {
-    display.setChar(0, 0 + digitOffset, ' ', false);
-  }
-
   value = value + 0.5; // Rounding up so > x.5 = 1x
+
+  if (value < 0.0) {
+    display.setChar(0, 2, '-', true);
+  } else {
+    display.setChar(0, 2, ' ', true);
+  }
 
   int16_t hundreds = value / 100;
   int16_t tens = ((int16_t)value / 10) % 10;
   int16_t ones = (int16_t)value % 10;
 
   if (hundreds == 0) {
-    display.setChar(0, 1 + digitOffset, ' ', false);
+    display.setChar(0, 3, ' ', false);
   } else {
-    display.setDigit(0, 1 + digitOffset, hundreds, false);
+    display.setDigit(0, 3, hundreds, false);
   }
 
   if (hundreds == 0 && tens == 0) {
-    display.setChar(0, 2 + digitOffset, ' ', false);
+    display.setChar(0, 4, ' ', false);
   } else {
-    display.setDigit(0, 2 + digitOffset, tens, false);
+    display.setDigit(0, 4, tens, false);
   }
 
-  display.setDigit(0, 3 + digitOffset, ones, false);
+  display.setDigit(0, 5, ones, false);
+
+  // Serial.print("   H: ");
+  // Serial.print(hundreds);
+  // Serial.print("  T: ");
+  // Serial.print(tens);
+  // Serial.print("  Os: ");
+  // Serial.println(ones);
+  // Serial.println();
+}
+
+void updateDisplayTemp(float value) {
+
+  // Serial.print("Value: ");
+  // Serial.print(value);
+
+  if (temperatureUnit == UNIT_F) {
+    value = CtoF(value);
+  }
+
+  value = value + 0.5; // Rounding up so > x.5 = 1x
+
+  if (value < 0.0) {
+    display.setChar(0, 0, '-', false);
+  } else {
+    display.setChar(0, 0, ' ', false);
+  }
+
+  int16_t hundreds = value / 100;
+  int16_t tens = ((int16_t)value / 10) % 10;
+  int16_t ones = (int16_t)value % 10;
+
+  if (hundreds == 0) {
+    display.setChar(0, 1, ' ', false);
+  } else {
+    display.setDigit(0, 1, hundreds, false);
+  }
+
+  if (hundreds == 0 && tens == 0) {
+    display.setChar(0, 2, ' ', false);
+  } else {
+    display.setDigit(0, 2, tens, false);
+  }
+
+  display.setDigit(0, 3, ones, false);
 
   // Serial.print("   H: ");
   // Serial.print(hundreds);

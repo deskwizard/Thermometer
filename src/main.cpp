@@ -1,10 +1,10 @@
 /*
 
     TODO: Add alarm setting capabilities:
-            - the display handling
-            - the keys handling
-            - the encoder
-            - (saving to eeprom) - sensor saves settings, maybe not required,
+          *  - the display handling
+          *  - the keys handling
+          *  - the encoder
+             - (saving to eeprom) - sensor saves settings, maybe not required,
    just read from the sensor, or set a profile, something....
 */
 

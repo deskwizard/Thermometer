@@ -160,7 +160,6 @@ void handleKeys() {
         } else {
           temperatureUnit = !temperatureUnit;
           updateUnits();
-          //updateDisplay();
         }
       }
     }
@@ -175,10 +174,8 @@ void handleKeys() {
         deviceMode++;
         if (deviceMode > MODE_LAST) {
           deviceMode = MODE_RUN;
-          // updateUnits(); // redraw the ° and unit
-          // updateDisplay();
         }
-        updateDisplayMode();
+        setDisplayMode();
         Serial.print(F("Mode change to: "));
         Serial.println(deviceMode);
       }
