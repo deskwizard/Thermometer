@@ -59,7 +59,7 @@ void initSensors() {
     Serial.println(F("Unable to find address for Device 0"));
   } else {
     // printAlarmInfo(thermometerAddr);
-
+    
     // lowAlarmValue = (float)sensors.getLowAlarmTemp(thermometerAddr);
     // highAlarmValue = (float)sensors.getHighAlarmTemp(thermometerAddr);
 
@@ -116,9 +116,9 @@ void handleSensors() {
 
 void handleAlarms() {
 
-  static bool ledState;
-  static uint32_t previousMillis = millis();
-  // int16_t tempC = (int16_t)(sensorTemperatureC + 0.5);
+  // static bool ledState;
+  // static uint32_t previousMillis = millis();
+
   // float tempC = sensorTemperatureC + 0.5;
   float tempC = sensorTemperatureC;
 
@@ -127,7 +127,9 @@ void handleAlarms() {
     Serial.println(F("Low Temperature Alarm"));
     lowAlarmTriggered = true;
     blinkDisplay(true);
-    previousMillis = previousMillis - 1000; // Make sure it triggers right away
+    digitalWrite(LED_BLUE, HIGH);
+    // previousMillis = previousMillis - 1000; // Make sure it triggers right
+    // away
   }
 
   if ((tempC + 0.5) >= highAlarmValue && !highAlarmAcknoledged &&
@@ -135,21 +137,23 @@ void handleAlarms() {
     Serial.println(F("High Temperature Alarm"));
     highAlarmTriggered = true;
     blinkDisplay(true);
-    previousMillis = previousMillis - 1000; // Make sure it triggers right away
+    digitalWrite(LED_RED, HIGH);
+    // previousMillis = previousMillis - 1000; // Make sure it triggers right
+    // away
   }
 
-  if (millis() - previousMillis > 1000) {
+  // if (millis() - previousMillis > 1000) {
 
-    if (lowAlarmTriggered && !lowAlarmAcknoledged) {
-      ledState = !ledState;
-      digitalWrite(LED_BLUE, ledState);
-    }
+  //   if (lowAlarmTriggered && !lowAlarmAcknoledged) {
+  //     ledState = !ledState;
+  //     digitalWrite(LED_BLUE, ledState);
+  //   }
 
-    if (highAlarmTriggered && !highAlarmAcknoledged) {
-      ledState = !ledState;
-      digitalWrite(LED_RED, ledState);
-    }
+  //   if (highAlarmTriggered && !highAlarmAcknoledged) {
+  //     ledState = !ledState;
+  //     digitalWrite(LED_RED, ledState);
+  //   }
 
-    previousMillis = millis();
-  }
+  //   previousMillis = millis();
+  // }
 }
