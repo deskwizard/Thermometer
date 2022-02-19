@@ -9,6 +9,7 @@ void initDisplay();
 void setDisplay(float value);
 void setDisplay(float value, uint8_t digitOffset);
 void updateUnits();
+void updateDisplayMode();
 void updateDisplay();
 void handleDisplay();
 void blinkDisplay(bool enabled);

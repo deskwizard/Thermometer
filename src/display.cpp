@@ -18,10 +18,7 @@ extern int16_t highAlarmValue;
 extern uint8_t deviceMode;
 
 // FIXME: put that somewhere else
-float CtoF(float celsius) {
-	return (celsius * 1.8f) + 32.0f;
-}
-
+float CtoF(float celsius) { return (celsius * 1.8f) + 32.0f; }
 
 void initDisplay() {
 
@@ -59,31 +56,44 @@ void updateUnits() {
   updateDisplay();
 }
 
+void updateDisplayMode() {
+
+  display.clearDisplay(0);
+
+  switch (deviceMode) {
+  case MODE_RUN:
+    updateUnits(); // Redraws the degree sign and unit
+    break;
+  case MODE_LSET:
+    display.setChar(0, 0, 'L', false);
+    display.setChar(0, 1, 'o', true);
+    updateDisplay();
+    break;
+  case MODE_HSET:
+    display.setChar(0, 0, 'H', false);
+    display.setRow(0, 1, B10000100); // Lowercase i w/ dp
+    updateDisplay();
+    break;
+  case MODE_USET:
+    display.setRow(0, 0, B00111110); // Uppercase U
+    display.setChar(0, 1, 'n', true);
+    updateDisplay();
+    break;
+  }
+}
+
 void updateDisplay() {
 
   if (deviceMode == MODE_RUN) {
     setDisplay(sensorTemperatureC);
-  } 
-  else {
-
-    display.setChar(0, 2, ' ', true);
-    display.setChar(0, 3, ' ', false);
-
+  } else {
     switch (deviceMode) {
 
     case MODE_LSET:
-      display.setChar(0, 0, 'L', false);
-      display.setChar(0, 1, 'o', true);
       setDisplay(lowAlarmValue, 2);
       break;
     case MODE_HSET:
-      display.setChar(0, 0, 'H', false);
-      display.setRow(0, 1, B10000100); // Lowercase i w/ dp
       setDisplay(highAlarmValue, 2);
-      break;
-    case MODE_USET:
-      display.setRow(0, 0, B00111110); // Uppercase U
-      display.setChar(0, 1, 'n', true);
       break;
     }
   }
