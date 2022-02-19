@@ -124,7 +124,11 @@ void handleAlarms() {
 
   if (tempC <= lowAlarmValue && !lowAlarmAcknoledged && highAlarmAcknoledged &&
       !lowAlarmTriggered) {
-    Serial.println(F("Low Temperature Alarm"));
+    Serial.print(F("Low Temperature Alarm: "));
+    Serial.print(lowAlarmValue);
+    Serial.print("°C  R:");
+    Serial.print(sensorTemperatureC);
+    Serial.println("°C");
     lowAlarmTriggered = true;
     blinkDisplay(true);
     digitalWrite(LED_BLUE, HIGH);
@@ -134,7 +138,11 @@ void handleAlarms() {
 
   if ((tempC + 0.5) >= highAlarmValue && !highAlarmAcknoledged &&
       !highAlarmTriggered) {
-    Serial.println(F("High Temperature Alarm"));
+        Serial.print(F("High Temperature Alarm: "));
+    Serial.print(highAlarmValue);
+    Serial.print("°C  R:");
+    Serial.print((tempC + 0.5));
+    Serial.println("°C");
     highAlarmTriggered = true;
     blinkDisplay(true);
     digitalWrite(LED_RED, HIGH);

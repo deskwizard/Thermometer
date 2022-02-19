@@ -14,7 +14,6 @@ extern float lowAlarmValue;
 extern float highAlarmValue;
 extern uint8_t deviceMode;
 
-//uint8_t animFrames[FRAME_COUNT] = {B00100000, B0000001, B00000010, B01000000};
 uint8_t animFrames[FRAME_COUNT] = {B00100011, B01000011, B01100010, B01100001};
 
 void initDisplay() {
