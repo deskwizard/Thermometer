@@ -10,8 +10,10 @@ volatile uint8_t key_state;       // bit x = 1: key has changed state
 volatile uint8_t currentEncoderPos = 0;
 uint8_t lastEncoderPos = 0;
 
-extern int16_t lowAlarmValue;
-extern int16_t highAlarmValue;
+// extern int16_t lowAlarmValue;
+// extern int16_t highAlarmValue;
+extern float lowAlarmValue;
+extern float highAlarmValue;
 extern bool lowAlarmAcknoledged;
 extern bool highAlarmAcknoledged;
 extern bool lowAlarmTriggered;
@@ -197,12 +199,22 @@ void handleEncoder() {
         temperatureUnit = UNIT_C;
         updateUnits();
       } else if (deviceMode == MODE_LSET) {
-        lowAlarmValue++;
-        setLowAlarm(lowAlarmValue);
+        if (temperatureUnit == UNIT_C) {
+          lowAlarmValue++;
+        } else {
+          lowAlarmValue = lowAlarmValue + 0.555555556f;
+        }
+        // setLowAlarm(lowAlarmValue);
+        Serial.print("LSET: ");
+        Serial.println(lowAlarmValue);
         updateDisplay();
       } else if (deviceMode == MODE_HSET) {
-        highAlarmValue++;
-        setHighAlarm(highAlarmValue);
+        if (temperatureUnit == UNIT_C) {
+          highAlarmValue++;
+        } else {
+          highAlarmValue = highAlarmValue + 0.555555556f;
+        }
+        //setHighAlarm(highAlarmValue);
         updateDisplay();
       }
 
@@ -214,12 +226,22 @@ void handleEncoder() {
         temperatureUnit = UNIT_F;
         updateUnits();
       } else if (deviceMode == MODE_LSET) {
-        lowAlarmValue--;
-        setLowAlarm(lowAlarmValue);
+        if (temperatureUnit == UNIT_C) {
+          lowAlarmValue--;
+        } else {
+          lowAlarmValue = lowAlarmValue - 0.555555556f;
+        }
+        Serial.print("LSET: ");
+        Serial.println(lowAlarmValue);
+        // setLowAlarm(lowAlarmValue);
         updateDisplay();
       } else if (deviceMode == MODE_HSET) {
-        highAlarmValue--;
-        setHighAlarm(highAlarmValue);
+        if (temperatureUnit == UNIT_C) {
+          highAlarmValue--;
+        } else {
+          highAlarmValue = highAlarmValue - 0.555555556f;
+        }
+        // setHighAlarm(highAlarmValue);
         updateDisplay();
       }
     }

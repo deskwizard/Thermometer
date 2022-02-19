@@ -16,6 +16,9 @@
 
 uint8_t deviceMode = MODE_RUN;
 
+// FIXME: put that somewhere else
+float CtoF(float celsius) { return (celsius * 1.8f) + 32.0f; }
+
 void loop() {
   handleSensors();
   handleInputs();

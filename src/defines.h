@@ -11,3 +11,5 @@
 #define MODE_LSET 3 // Low alarm temp
 #define MODE_HSET 4 // High alarm temp
 #define MODE_LAST MODE_HSET
+
+float CtoF(float celsius);

@@ -12,8 +12,10 @@ DeviceAddress thermometerAddr;
 bool temperatureUnit = UNIT_C;
 float sensorTemperatureC;
 
-int16_t lowAlarmValue = 22;  // 40; // 104F
-int16_t highAlarmValue = 25; // 60; // 140F
+// int16_t lowAlarmValue = 22;  // 40; // 104F
+// int16_t highAlarmValue = 25; // 60; // 140F
+float lowAlarmValue = 22.0;  // 40; // 104F
+float highAlarmValue = 25.0; // 60; // 140F
 bool lowAlarmAcknoledged = false;
 bool highAlarmAcknoledged = false;
 bool lowAlarmTriggered = false;
@@ -38,16 +40,16 @@ void printAlarmInfo(const DeviceAddress deviceAddress) {
   Serial.println();
 }
 
-
- /******** valid range is -55C - 125C *********/
-void setLowAlarm(int8_t value) {
-  lowAlarmValue = value;
-  sensors.setLowAlarmTemp(thermometerAddr, value);
-}
-void setHighAlarm(int8_t value) {
-  highAlarmValue = value;
-  sensors.setHighAlarmTemp(thermometerAddr, value);
-}
+// // FIXME: handle the float stuff/rework completely?
+// /******** valid range is -55C - 125C *********/
+// void setLowAlarm(int8_t value) {
+//   lowAlarmValue = value;
+//   sensors.setLowAlarmTemp(thermometerAddr, value);
+// }
+// void setHighAlarm(int8_t value) {
+//   highAlarmValue = value;
+//   sensors.setHighAlarmTemp(thermometerAddr, value);
+// }
 
 void initSensors() {
 
@@ -58,8 +60,8 @@ void initSensors() {
   } else {
     // printAlarmInfo(thermometerAddr);
 
-    lowAlarmValue = sensors.getLowAlarmTemp(thermometerAddr);
-    highAlarmValue = sensors.getHighAlarmTemp(thermometerAddr);
+    // lowAlarmValue = (float)sensors.getLowAlarmTemp(thermometerAddr);
+    // highAlarmValue = (float)sensors.getHighAlarmTemp(thermometerAddr);
 
     Serial.print("Current alarm values: ");
     Serial.print("    Lo: ");
@@ -91,6 +93,12 @@ void handleSensors() {
     // Check for "device presence"
     if (sensorTemperatureC != DEVICE_DISCONNECTED_C) {
       updateDisplay();
+      // Serial.print("Temp: ");
+      // Serial.print(sensorTemperatureC);
+      // Serial.print("°C (");
+      // Serial.print(CtoF(sensorTemperatureC));
+      // Serial.println("°F)  ");
+      // Serial.println();
     }
     // Otherwise we have a problem
     else {
@@ -107,7 +115,9 @@ void handleAlarms() {
 
   static bool ledState;
   static uint32_t previousMillis = millis();
-  int16_t tempC = (int16_t)(sensorTemperatureC + 0.5);
+  // int16_t tempC = (int16_t)(sensorTemperatureC + 0.5);
+  //float tempC = sensorTemperatureC + 0.5;
+  float tempC = sensorTemperatureC;
 
   if (tempC <= lowAlarmValue && !lowAlarmAcknoledged && highAlarmAcknoledged &&
       !lowAlarmTriggered) {
@@ -117,7 +127,7 @@ void handleAlarms() {
     previousMillis = previousMillis - 1000;
   }
 
-  if (tempC >= highAlarmValue && !highAlarmAcknoledged && !highAlarmTriggered) {
+  if ((tempC + 0.5 ) >= highAlarmValue && !highAlarmAcknoledged && !highAlarmTriggered) {
     Serial.println(F("High Temperature Alarm"));
     highAlarmTriggered = true;
     blinkDisplay(true);

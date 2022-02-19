@@ -13,12 +13,14 @@ uint8_t displayIntensity = MAX_INTENSITY;
 
 extern float sensorTemperatureC;
 extern bool temperatureUnit;
-extern int16_t lowAlarmValue;
-extern int16_t highAlarmValue;
+// extern int16_t lowAlarmValue;
+// extern int16_t highAlarmValue;
+extern float lowAlarmValue;
+extern float highAlarmValue;
 extern uint8_t deviceMode;
 
-// FIXME: put that somewhere else
-float CtoF(float celsius) { return (celsius * 1.8f) + 32.0f; }
+// // FIXME: put that somewhere else
+// float CtoF(float celsius) { return (celsius * 1.8f) + 32.0f; }
 
 void initDisplay() {
 
