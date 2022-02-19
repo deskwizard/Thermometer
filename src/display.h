@@ -2,8 +2,8 @@
 
 #include <Arduino.h>
 
-#define MAX_INTENSITY 11
-#define MIN_INTENSITY 3
+#define MAX_INTENSITY 12
+#define MIN_INTENSITY 2
 
 void initDisplay();
 void setDisplay(float value);

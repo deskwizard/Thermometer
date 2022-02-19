@@ -66,7 +66,6 @@ void initInputs() {
   lastEncoderPos = currentEncoderPos;
 
   // Pins defaults to inputs, so we only need to set the pullups here
-  // FIXME: use KEY_MASK instead  ?
   KEY_PORT |= KEY_MASK;
 
   // We need to pre-load the current values,
@@ -137,9 +136,9 @@ void handleKeys() {
       Serial.print(F("Key 0 - "));
 
       if (bitRead(currentKeyState, KEY0)) {
-        Serial.println(F("Released"));
+        Serial.println("Released");
       } else {
-        Serial.println(F("Pressed"));
+        Serial.println("Pressed");
 
         if (lowAlarmTriggered && !lowAlarmAcknoledged) {
           lowAlarmAcknoledged = true;
@@ -169,18 +168,16 @@ void handleKeys() {
 
       Serial.print(F("Key 1 - "));
       if (bitRead(currentKeyState, KEY1)) {
-        Serial.println(F("Released"));
+        Serial.println("Released");
       } else {
-        Serial.println(F("Pressed"));
-        // temperatureUnit = !temperatureUnit;
-        // updateUnits();
+        Serial.println("Pressed");
         deviceMode++;
         if (deviceMode > MODE_HSET) {
           deviceMode = MODE_RUN;
           updateUnits(); // redraw the ° and unit
           updateDisplay();
         }
-        Serial.print("Mode change to: ");
+        Serial.print(F("Mode change to: "));
         Serial.println(deviceMode);
       }
     }

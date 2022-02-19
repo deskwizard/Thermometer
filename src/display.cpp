@@ -16,11 +16,7 @@ extern bool temperatureUnit;
 extern int16_t lowAlarmValue;
 extern int16_t highAlarmValue;
 extern uint8_t deviceMode;
-/*
-int16_t CtoF(int16_t celsius) {
-  return (int16_t)((float)celsius * 1.8f) + 32.0f;
-}
-*/
+
 // FIXME: put that somewhere else
 float CtoF(float celsius) {
 	return (celsius * 1.8f) + 32.0f;
@@ -100,9 +96,6 @@ void setDisplay(float value, uint8_t digitOffset) {
   // Serial.print("Value: ");
   // Serial.print(value);
 
-  // FIXME: deal with the F display (and rounding up ?)
-  
-
   if (temperatureUnit == UNIT_F) {
     value = CtoF(value);
   }
@@ -113,7 +106,7 @@ void setDisplay(float value, uint8_t digitOffset) {
     display.setChar(0, 0 + digitOffset, ' ', false);
   }
 
-  value = value + 0.5;
+  value = value + 0.5; // Rounding up so > x.5 = 1x
 
   int16_t hundreds = value / 100;
   int16_t tens = ((int16_t)value / 10) % 10;
