@@ -1,6 +1,7 @@
 #include "input.h"
 #include "defines.h"
 #include "display.h"
+#include "sensors.h"
 #include <Arduino.h>
 
 volatile uint8_t currentKeyState; // debounced state
@@ -199,9 +200,11 @@ void handleEncoder() {
         updateUnits();
       } else if (deviceMode == MODE_LSET) {
         lowAlarmValue++;
+        setLowAlarm(lowAlarmValue);
         updateDisplay();
       } else if (deviceMode == MODE_HSET) {
         highAlarmValue++;
+        setHighAlarm(highAlarmValue);
         updateDisplay();
       }
 
@@ -214,9 +217,11 @@ void handleEncoder() {
         updateUnits();
       } else if (deviceMode == MODE_LSET) {
         lowAlarmValue--;
+        setLowAlarm(lowAlarmValue);
         updateDisplay();
       } else if (deviceMode == MODE_HSET) {
         highAlarmValue--;
+        setHighAlarm(highAlarmValue);
         updateDisplay();
       }
     }

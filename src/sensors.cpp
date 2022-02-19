@@ -1,7 +1,6 @@
 #include "sensors.h"
 #include "defines.h"
 #include "display.h"
-#include <Arduino.h>
 #include <DallasTemperature.h>
 #include <OneWire.h>
 
@@ -39,8 +38,18 @@ void printAlarmInfo(const DeviceAddress deviceAddress) {
   Serial.println();
 }
 
-void initSensors() {
 
+ /******** valid range is -55C - 125C *********/
+void setLowAlarm(int8_t value) {
+  lowAlarmValue = value;
+  sensors.setLowAlarmTemp(thermometerAddr, value);
+}
+void setHighAlarm(int8_t value) {
+  highAlarmValue = value;
+  sensors.setHighAlarmTemp(thermometerAddr, value);
+}
+
+void initSensors() {
 
   sensors.begin();
 

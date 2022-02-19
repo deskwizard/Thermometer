@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Arduino.h>
+#include <stdint.h>
 
 #define MAX_INTENSITY 12
 #define MIN_INTENSITY 2
