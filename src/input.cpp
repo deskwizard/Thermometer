@@ -173,7 +173,7 @@ void handleKeys() {
       } else {
         Serial.println("Pressed");
         deviceMode++;
-        if (deviceMode > MODE_HSET) {
+        if (deviceMode > MODE_LAST) {
           deviceMode = MODE_RUN;
           // updateUnits(); // redraw the ° and unit
           // updateDisplay();
