@@ -2,9 +2,6 @@
 #include "LedControl.h"
 #include "defines.h"
 
-#define UNIT_C true
-#define UNIT_F false
-
 LedControl display = LedControl(12, 13, 10, 1);
 
 bool displayBlinkEnabled = false;
@@ -13,14 +10,12 @@ uint8_t displayIntensity = MAX_INTENSITY;
 
 extern float sensorTemperatureC;
 extern bool temperatureUnit;
-// extern int16_t lowAlarmValue;
-// extern int16_t highAlarmValue;
 extern float lowAlarmValue;
 extern float highAlarmValue;
 extern uint8_t deviceMode;
 
-// // FIXME: put that somewhere else
-// float CtoF(float celsius) { return (celsius * 1.8f) + 32.0f; }
+//uint8_t animFrames[FRAME_COUNT] = {B00100000, B0000001, B00000010, B01000000};
+uint8_t animFrames[FRAME_COUNT] = {B00100011, B01000011, B01100010, B01100001};
 
 void initDisplay() {
 
@@ -87,7 +82,7 @@ void setDisplayMode() {
 
 void updateDisplay() {
 
-  if (deviceMode == MODE_RUN) {
+  if ((deviceMode == MODE_RUN) || (deviceMode == MODE_IDLE)) {
     updateDisplayTemp(sensorTemperatureC);
   } else {
     switch (deviceMode) {
@@ -204,9 +199,13 @@ void blinkDisplay(bool enabled) {
 
 void handleDisplay() {
 
+  static uint8_t frameCounter = 0;
   static bool displayState;
-  static uint32_t previousMillis = millis();
-  if ((millis() - previousMillis > displayBlinkRate) && displayBlinkEnabled) {
+  static uint32_t previousBlinkMillis = millis();
+  static uint32_t previousAnimMillis = millis();
+
+  if ((millis() - previousBlinkMillis > displayBlinkRate) &&
+      displayBlinkEnabled) {
     displayState = !displayState;
 
     if (displayState) {
@@ -215,6 +214,17 @@ void handleDisplay() {
       display.setIntensity(0, MIN_INTENSITY);
     }
 
-    previousMillis = millis();
+    previousBlinkMillis = millis();
+  }
+
+  if ((millis() - previousAnimMillis > 100) && deviceMode == MODE_RUN) {
+
+    //Serial.println(frameCounter);
+    display.setRow(0, 4, animFrames[frameCounter]);
+    frameCounter++;
+    if (frameCounter >= FRAME_COUNT) {
+      frameCounter = 0;
+    }
+    previousAnimMillis = millis();
   }
 }

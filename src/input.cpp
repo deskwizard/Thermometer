@@ -10,8 +10,6 @@ volatile uint8_t key_state;       // bit x = 1: key has changed state
 volatile uint8_t currentEncoderPos = 0;
 uint8_t lastEncoderPos = 0;
 
-// extern int16_t lowAlarmValue;
-// extern int16_t highAlarmValue;
 extern float lowAlarmValue;
 extern float highAlarmValue;
 extern bool lowAlarmAcknoledged;
@@ -150,6 +148,8 @@ void handleKeys() {
           digitalWrite(LED_BLUE, LOW);
           Serial.println(F("Low alarm ack"));
           blinkDisplay(false);
+          deviceMode = MODE_IDLE;
+          updateUnits();
         }
 
         else if (highAlarmTriggered && !highAlarmAcknoledged) {
@@ -160,8 +160,8 @@ void handleKeys() {
           Serial.println(F("High alarm ack"));
           blinkDisplay(false);
         } else {
-          temperatureUnit = !temperatureUnit;
-          updateUnits();
+          //FIXME: that sounds wrong...
+          deviceMode = !deviceMode; // Will toggle between 0 and 1
         }
       }
     }

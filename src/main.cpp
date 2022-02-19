@@ -14,9 +14,8 @@
 #include "sensors.h"
 #include <Arduino.h>
 
-uint8_t deviceMode = MODE_RUN;
+uint8_t deviceMode = MODE_IDLE;
 
-// FIXME: put that somewhere else
 float CtoF(float celsius) { return (celsius * 1.8f) + 32.0f; }
 
 void loop() {

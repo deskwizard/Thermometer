@@ -5,6 +5,8 @@
 #define MAX_INTENSITY 12
 #define MIN_INTENSITY 2
 
+#define FRAME_COUNT 4 // Don't forget the array crap.
+
 void initDisplay();
 
 void setDisplayMode();

@@ -12,14 +12,14 @@ DeviceAddress thermometerAddr;
 bool temperatureUnit = UNIT_C;
 float sensorTemperatureC;
 
-// int16_t lowAlarmValue = 22;  // 40; // 104F
-// int16_t highAlarmValue = 25; // 60; // 140F
 float lowAlarmValue = 22.0;  // 40; // 104F
 float highAlarmValue = 25.0; // 60; // 140F
 bool lowAlarmAcknoledged = false;
 bool highAlarmAcknoledged = false;
 bool lowAlarmTriggered = false;
 bool highAlarmTriggered = false;
+
+extern uint8_t deviceMode;
 
 void printAlarmInfo(const DeviceAddress deviceAddress) {
   int8_t temp;
@@ -93,6 +93,7 @@ void handleSensors() {
     // Check for "device presence"
     if (sensorTemperatureC != DEVICE_DISCONNECTED_C) {
       updateDisplay();
+
       // Serial.print("Temp: ");
       // Serial.print(sensorTemperatureC);
       // Serial.print("°C (");
@@ -105,7 +106,9 @@ void handleSensors() {
       Serial.println(F("Error: Could not read temperature data"));
     }
 
-    handleAlarms();
+    if (deviceMode == MODE_RUN) {
+      handleAlarms();
+    }
 
     lastSensorRead = millis();
   }
@@ -116,7 +119,7 @@ void handleAlarms() {
   static bool ledState;
   static uint32_t previousMillis = millis();
   // int16_t tempC = (int16_t)(sensorTemperatureC + 0.5);
-  //float tempC = sensorTemperatureC + 0.5;
+  // float tempC = sensorTemperatureC + 0.5;
   float tempC = sensorTemperatureC;
 
   if (tempC <= lowAlarmValue && !lowAlarmAcknoledged && highAlarmAcknoledged &&
@@ -124,14 +127,15 @@ void handleAlarms() {
     Serial.println(F("Low Temperature Alarm"));
     lowAlarmTriggered = true;
     blinkDisplay(true);
-    previousMillis = previousMillis - 1000;
+    previousMillis = previousMillis - 1000; // Make sure it triggers right away
   }
 
-  if ((tempC + 0.5 ) >= highAlarmValue && !highAlarmAcknoledged && !highAlarmTriggered) {
+  if ((tempC + 0.5) >= highAlarmValue && !highAlarmAcknoledged &&
+      !highAlarmTriggered) {
     Serial.println(F("High Temperature Alarm"));
     highAlarmTriggered = true;
     blinkDisplay(true);
-    previousMillis = previousMillis - 1000;
+    previousMillis = previousMillis - 1000; // Make sure it triggers right away
   }
 
   if (millis() - previousMillis > 1000) {
