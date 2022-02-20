@@ -160,12 +160,21 @@ void handleKeys() {
           Serial.println(F("High alarm ack"));
           blinkDisplay(false);
         } else {
-          //FIXME: that sounds wrong...
-          deviceMode = !deviceMode; // Will toggle between 0 and 1
+          // FIXME: that sounds wrong...
+          //deviceMode = !deviceMode; // Will toggle between 0 and 1
+
+          if (deviceMode == MODE_IDLE) {
+            deviceMode = MODE_RUN;
+          }
+          else if (deviceMode == MODE_RUN) {
+            deviceMode = MODE_IDLE;
+            updateUnits();
+          }
+
         }
       }
     }
-
+    static bool lastIdleOrRun = deviceMode;
     if (bitRead(key_state, KEY1)) { // Encoder pushbutton
 
       Serial.print(F("Key 1 - "));
@@ -173,13 +182,26 @@ void handleKeys() {
         Serial.println("Released");
       } else {
         Serial.println("Pressed");
-        deviceMode++;
+
+        if (deviceMode == MODE_RUN) {
+          lastIdleOrRun = deviceMode;
+          deviceMode++;
+        }
+
+        else if (deviceMode == MODE_IDLE) {
+          lastIdleOrRun = deviceMode;
+          deviceMode = MODE_USET;
+        } else {
+          deviceMode++;
+        }
+
+        // deviceMode++;
         if (deviceMode > MODE_LAST) {
-          deviceMode = MODE_RUN;
+          deviceMode = lastIdleOrRun;
         }
         setDisplayMode();
         Serial.print(F("Mode change to: "));
-        Serial.println(deviceMode);
+        Serial.println(lastIdleOrRun);
       }
     }
 
@@ -214,7 +236,7 @@ void handleEncoder() {
         } else {
           highAlarmValue = highAlarmValue + 0.555555556f;
         }
-        //setHighAlarm(highAlarmValue);
+        // setHighAlarm(highAlarmValue);
         updateDisplay();
       }
 

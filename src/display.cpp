@@ -58,6 +58,7 @@ void setDisplayMode() {
 
   switch (deviceMode) {
   case MODE_RUN:
+  case MODE_IDLE:
     updateUnits(); // Redraws the degree sign and unit
     break;
   case MODE_USET:
