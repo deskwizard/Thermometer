@@ -157,20 +157,17 @@ void handleKeys() {
           highAlarmTriggered = false;
           lowAlarmAcknoledged = false;
           digitalWrite(LED_RED, LOW);
+          digitalWrite(LED_BLUE, HIGH);
           Serial.println(F("High alarm ack"));
           blinkDisplay(false);
         } else {
-          // FIXME: that sounds wrong...
-          //deviceMode = !deviceMode; // Will toggle between 0 and 1
-
           if (deviceMode == MODE_IDLE) {
             deviceMode = MODE_RUN;
-          }
-          else if (deviceMode == MODE_RUN) {
+            digitalWrite(LED_RED, HIGH);
+          } else if (deviceMode == MODE_RUN) {
             deviceMode = MODE_IDLE;
             updateUnits();
           }
-
         }
       }
     }

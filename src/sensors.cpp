@@ -42,6 +42,8 @@ void printAlarmInfo(const DeviceAddress deviceAddress) {
 
 // // FIXME: handle the float stuff/rework completely?
 // /******** valid range is -55C - 125C *********/
+//  ....Because that's the sensors' range
+//
 // void setLowAlarm(int8_t value) {
 //   lowAlarmValue = value;
 //   sensors.setLowAlarmTemp(thermometerAddr, value);
@@ -59,7 +61,7 @@ void initSensors() {
     Serial.println(F("Unable to find address for Device 0"));
   } else {
     // printAlarmInfo(thermometerAddr);
-    
+
     // lowAlarmValue = (float)sensors.getLowAlarmTemp(thermometerAddr);
     // highAlarmValue = (float)sensors.getHighAlarmTemp(thermometerAddr);
 
@@ -116,8 +118,8 @@ void handleSensors() {
 
 void handleAlarms() {
 
-  // static bool ledState;
-  // static uint32_t previousMillis = millis();
+  static bool ledState;
+  static uint32_t previousMillis = millis();
 
   // float tempC = sensorTemperatureC + 0.5;
   float tempC = sensorTemperatureC;
@@ -126,42 +128,42 @@ void handleAlarms() {
       !lowAlarmTriggered) {
     Serial.print(F("Low Temperature Alarm: "));
     Serial.print(lowAlarmValue);
-    Serial.print("°C  R:");
-    Serial.print(sensorTemperatureC);
+    Serial.print("°C  S:");
+    Serial.print(tempC);
     Serial.println("°C");
     lowAlarmTriggered = true;
     blinkDisplay(true);
     digitalWrite(LED_BLUE, HIGH);
-    // previousMillis = previousMillis - 1000; // Make sure it triggers right
-    // away
   }
 
-  if ((tempC + 0.5) >= highAlarmValue && !highAlarmAcknoledged &&
+  if (tempC >= highAlarmValue && !highAlarmAcknoledged &&
       !highAlarmTriggered) {
-        Serial.print(F("High Temperature Alarm: "));
+    Serial.print(F("High Temperature Alarm: "));
     Serial.print(highAlarmValue);
     Serial.print("°C  R:");
     Serial.print((tempC + 0.5));
+    Serial.print("°C  S:");
+    Serial.print(tempC);
     Serial.println("°C");
     highAlarmTriggered = true;
     blinkDisplay(true);
     digitalWrite(LED_RED, HIGH);
-    // previousMillis = previousMillis - 1000; // Make sure it triggers right
-    // away
   }
 
-  // if (millis() - previousMillis > 1000) {
+  if (millis() - previousMillis > LED_FLASH_RATE) {
 
-  //   if (lowAlarmTriggered && !lowAlarmAcknoledged) {
-  //     ledState = !ledState;
-  //     digitalWrite(LED_BLUE, ledState);
-  //   }
+    if (deviceMode == MODE_RUN) {
+      if (!lowAlarmAcknoledged && highAlarmAcknoledged && !lowAlarmTriggered) {
+        ledState = !ledState;
+        digitalWrite(LED_BLUE, ledState);
+      }
 
-  //   if (highAlarmTriggered && !highAlarmAcknoledged) {
-  //     ledState = !ledState;
-  //     digitalWrite(LED_RED, ledState);
-  //   }
+      if (!highAlarmAcknoledged && !highAlarmTriggered) {
+        ledState = !ledState;
+        digitalWrite(LED_RED, ledState);
+      }
+    }
 
-  //   previousMillis = millis();
-  // }
+    previousMillis = millis();
+  }
 }

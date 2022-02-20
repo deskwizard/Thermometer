@@ -2,6 +2,7 @@
 
 #define LED_BLUE 19
 #define LED_RED 18
+#define LED_FLASH_RATE 500
 
 #define UNIT_C true
 #define UNIT_F false
@@ -12,5 +13,6 @@
 #define MODE_LSET 3 // Low alarm temp
 #define MODE_HSET 4 // High alarm temp
 #define MODE_LAST MODE_HSET
+
 
 float CtoF(float celsius);
