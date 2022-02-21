@@ -19,18 +19,23 @@ extern bool temperatureUnit;
 
 extern uint8_t deviceMode;
 
-// Read the encoder pins (called from ISR vector)
-inline uint8_t readEncoder(void) {
+void initInputs() {
+  // Enable pullups on encoder A/B pins
+  ENC_PORT |= (1 << ENC_A) | (1 << ENC_B);
 
-  uint8_t encoderPos = 0;
+  // Preload encoder position
+  currentEncoderPos = readEncoder();
+  lastEncoderPos = currentEncoderPos;
 
-  if (!bit_is_clear(ENC_PIN, ENC_A))
-    encoderPos |= (1 << 1);
+  // Pins defaults to inputs, so we only need to set the pullups here
+  KEY_PORT |= KEY_MASK;
 
-  if (!bit_is_clear(ENC_PIN, ENC_B))
-    encoderPos |= (1 << 0);
+  // We need to pre-load the current values,
+  // otherwise it might trigger on powerup/reset
+  currentKeyState = KEY_PIN & KEY_MASK;
 
-  return encoderPos;
+  // Start timer
+  initTimer();
 }
 
 void initTimer() {
@@ -55,25 +60,6 @@ void initTimer() {
   TIMSK2 |= (1 << OCIE2A);
 
   sei(); // allow interrupts
-}
-
-void initInputs() {
-  // Enable pullups on encoder A/B pins
-  ENC_PORT |= (1 << ENC_A) | (1 << ENC_B);
-
-  // Preload encoder position
-  currentEncoderPos = readEncoder();
-  lastEncoderPos = currentEncoderPos;
-
-  // Pins defaults to inputs, so we only need to set the pullups here
-  KEY_PORT |= KEY_MASK;
-
-  // We need to pre-load the current values,
-  // otherwise it might trigger on powerup/reset
-  currentKeyState = KEY_PIN & KEY_MASK;
-
-  // Start timer
-  initTimer();
 }
 
 // Function called from interrupt vector
@@ -206,6 +192,20 @@ void handleKeys() {
   }
 }
 
+// Read the encoder pins (called from ISR vector)
+inline uint8_t readEncoder(void) {
+
+  uint8_t encoderPos = 0;
+
+  if (!bit_is_clear(ENC_PIN, ENC_A))
+    encoderPos |= (1 << 1);
+
+  if (!bit_is_clear(ENC_PIN, ENC_B))
+    encoderPos |= (1 << 0);
+
+  return encoderPos;
+}
+
 void handleEncoder() {
   if (currentEncoderPos != lastEncoderPos) {
 
@@ -269,7 +269,7 @@ void handleEncoder() {
 }
 
 void handleInputs() {
-  handleKeys(); // React to debounced button(s)
+  handleKeys();
   handleEncoder();
 }
 

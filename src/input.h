@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 // FIXME: Encoder is a bit dicky... dirty/old encoder?
 // Rotary Encoders
 #define ENC_PIN PINC
@@ -19,3 +21,8 @@
 
 void initInputs();
 void handleInputs();
+
+// Internal use
+void initTimer();
+inline uint8_t readEncoder(void);
+inline void readKeys();
