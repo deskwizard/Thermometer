@@ -222,7 +222,7 @@ void handleEncoder() {
         } else {
           lowAlarmValue = lowAlarmValue + 0.555555556f;
         }
-        // setLowAlarm(lowAlarmValue);
+        setLowAlarm(lowAlarmValue);
         Serial.print("LSET: ");
         Serial.println(lowAlarmValue);
         updateDisplay();
@@ -232,7 +232,7 @@ void handleEncoder() {
         } else {
           highAlarmValue = highAlarmValue + 0.555555556f;
         }
-        // setHighAlarm(highAlarmValue);
+        setHighAlarm(highAlarmValue);
         updateDisplay();
       }
 
@@ -251,7 +251,7 @@ void handleEncoder() {
         }
         Serial.print("LSET: ");
         Serial.println(lowAlarmValue);
-        // setLowAlarm(lowAlarmValue);
+        setLowAlarm(lowAlarmValue);
         updateDisplay();
       } else if (deviceMode == MODE_HSET) {
         if (temperatureUnit == UNIT_C) {
@@ -259,7 +259,7 @@ void handleEncoder() {
         } else {
           highAlarmValue = highAlarmValue - 0.555555556f;
         }
-        // setHighAlarm(highAlarmValue);
+        setHighAlarm(highAlarmValue);
         updateDisplay();
       }
     }

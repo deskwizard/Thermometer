@@ -44,14 +44,14 @@ void printAlarmInfo(const DeviceAddress deviceAddress) {
 // /******** valid range is -55C - 125C *********/
 //  ....Because that's the sensors' range
 //
-// void setLowAlarm(int8_t value) {
-//   lowAlarmValue = value;
-//   sensors.setLowAlarmTemp(thermometerAddr, value);
-// }
-// void setHighAlarm(int8_t value) {
-//   highAlarmValue = value;
-//   sensors.setHighAlarmTemp(thermometerAddr, value);
-// }
+void setLowAlarm(int8_t value) {
+  lowAlarmValue = value;
+  sensors.setLowAlarmTemp(thermometerAddr, value);
+}
+void setHighAlarm(int8_t value) {
+  highAlarmValue = value;
+  sensors.setHighAlarmTemp(thermometerAddr, value);
+}
 
 void initSensors() {
 
@@ -62,8 +62,8 @@ void initSensors() {
   } else {
     // printAlarmInfo(thermometerAddr);
 
-    // lowAlarmValue = (float)sensors.getLowAlarmTemp(thermometerAddr);
-    // highAlarmValue = (float)sensors.getHighAlarmTemp(thermometerAddr);
+    lowAlarmValue = (float)sensors.getLowAlarmTemp(thermometerAddr);
+    highAlarmValue = (float)sensors.getHighAlarmTemp(thermometerAddr);
 
     Serial.print("Current alarm values: ");
     Serial.print("    Lo: ");
