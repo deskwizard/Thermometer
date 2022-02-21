@@ -210,8 +210,10 @@ void handleDisplay() {
 
     if (displayState) {
       display.setIntensity(0, MAX_INTENSITY);
+      digitalWrite(BUZZ_PIN, ON);
     } else {
       display.setIntensity(0, MIN_INTENSITY);
+      digitalWrite(BUZZ_PIN, OFF);
     }
 
     previousBlinkMillis = millis();
