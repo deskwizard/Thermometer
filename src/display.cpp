@@ -106,7 +106,7 @@ void updateDisplayMode(float value) {
     value = CtoF(value);
   }
 
-  value = value + 0.5; // Rounding up so > x.5 = 1x
+  // value = value + 0.5; // Rounding up so > x.5 = 1x
 
   if (value < 0.0) {
     display.setChar(0, 2, '-', true);
@@ -150,7 +150,7 @@ void updateDisplayTemp(float value) {
     value = CtoF(value);
   }
 
-  value = value + 0.5; // Rounding up so > x.5 = 1x
+  // value = value + 0.5; // Rounding up so > x.5 = 1x
 
   if (value < 0.0) {
     display.setChar(0, 0, '-', false);
@@ -219,7 +219,7 @@ void handleDisplay() {
 
   if ((millis() - previousAnimMillis > 100) && deviceMode == MODE_RUN) {
 
-    //Serial.println(frameCounter);
+    // Serial.println(frameCounter);
     display.setRow(0, 4, animFrames[frameCounter]);
     frameCounter++;
     if (frameCounter >= FRAME_COUNT) {
