@@ -40,16 +40,17 @@ void printAlarmInfo(const DeviceAddress deviceAddress) {
   Serial.println();
 }
 
-// // FIXME: handle the float stuff/rework completely?
+// FIXME: handle the float stuff/rework completely?
 // /******** valid range is -55C - 125C *********/
 //  ....Because that's the sensors' range
-//
+
+// FIXME:  Having this as a int8_t messes up setting in F mode
 void setLowAlarm(int8_t value) {
-  lowAlarmValue = value;
+  // lowAlarmValue = value;
   sensors.setLowAlarmTemp(thermometerAddr, value);
 }
 void setHighAlarm(int8_t value) {
-  highAlarmValue = value;
+  // highAlarmValue = value;
   sensors.setHighAlarmTemp(thermometerAddr, value);
 }
 
