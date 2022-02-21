@@ -122,30 +122,28 @@ void handleAlarms() {
   static bool ledState;
   static uint32_t previousMillis = millis();
 
-  // float tempC = sensorTemperatureC + 0.5;
-  float tempC = sensorTemperatureC;
-
-  if (tempC <= lowAlarmValue && !lowAlarmAcknoledged && highAlarmAcknoledged &&
-      !lowAlarmTriggered) {
+  if (sensorTemperatureC <= lowAlarmValue && !lowAlarmAcknoledged &&
+      highAlarmAcknoledged && !lowAlarmTriggered) {
     Serial.print(F("Low Temperature Alarm: "));
     Serial.print(lowAlarmValue);
     Serial.print("°C  R:");
-    Serial.print((tempC + 0.5));
+    Serial.print((sensorTemperatureC + 0.5));
     Serial.print("°C  S:");
-    Serial.print(tempC);
+    Serial.print(sensorTemperatureC);
     Serial.println("°C");
     lowAlarmTriggered = true;
     blinkDisplay(true);
     setLED(LED_BLUE, ON);
   }
 
-  if (tempC >= highAlarmValue && !highAlarmAcknoledged && !highAlarmTriggered) {
+  if (sensorTemperatureC >= highAlarmValue && !highAlarmAcknoledged &&
+      !highAlarmTriggered) {
     Serial.print(F("High Temperature Alarm: "));
     Serial.print(highAlarmValue);
     Serial.print("°C  R:");
-    Serial.print((tempC + 0.5));
+    Serial.print((sensorTemperatureC + 0.5));
     Serial.print("°C  S:");
-    Serial.print(tempC);
+    Serial.print(sensorTemperatureC);
     Serial.println("°C");
     highAlarmTriggered = true;
     blinkDisplay(true);

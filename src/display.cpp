@@ -106,8 +106,6 @@ void updateDisplayMode(float value) {
     value = CtoF(value);
   }
 
-  // value = value + 0.5; // Rounding up so > x.5 = 1x
-
   if (value < 0.0) {
     display.setChar(0, 2, '-', true);
   } else {
@@ -149,8 +147,6 @@ void updateDisplayTemp(float value) {
   if (temperatureUnit == UNIT_F) {
     value = CtoF(value);
   }
-
-  // value = value + 0.5; // Rounding up so > x.5 = 1x
 
   if (value < 0.0) {
     display.setChar(0, 0, '-', false);
@@ -210,8 +206,10 @@ void handleDisplay() {
 
     if (displayState) {
       display.setIntensity(0, MAX_INTENSITY);
+      digitalWrite(BUZZ_PIN, ON);
     } else {
       display.setIntensity(0, MIN_INTENSITY);
+      digitalWrite(BUZZ_PIN, OFF);
     }
 
     previousBlinkMillis = millis();

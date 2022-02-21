@@ -132,6 +132,7 @@ void handleKeys() {
           highAlarmAcknoledged = false;
           setLED(LED_BLUE, OFF);
           Serial.println(F("Low alarm ack"));
+          digitalWrite(BUZZ_PIN, OFF);
           blinkDisplay(false);
           deviceMode = MODE_IDLE;
           updateUnits();
@@ -144,6 +145,7 @@ void handleKeys() {
           setLED(LED_RED, OFF);
           setLED(LED_BLUE, ON);
           Serial.println(F("High alarm ack"));
+          digitalWrite(BUZZ_PIN, OFF);
           blinkDisplay(false);
         } else {
           if (deviceMode == MODE_IDLE) {

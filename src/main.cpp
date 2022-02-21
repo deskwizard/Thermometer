@@ -1,6 +1,7 @@
 /*
 
-    TODO: Fix displayed temp VS alarm trigger temps (probably some float crap...)
+    TODO: Fix displayed temp VS alarm trigger temps (probably some float
+   crap...)
 */
 
 #include "defines.h"
@@ -44,6 +45,7 @@ void setup() {
 
   initDisplay();
 
+  pinMode(BUZZ_PIN, OUTPUT);
   pinMode(LED_BLUE, OUTPUT);
   pinMode(LED_RED, OUTPUT);
   setLED(LED_BLUE, OFF);
