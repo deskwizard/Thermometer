@@ -2,7 +2,6 @@
 #include "defines.h"
 #include "display.h"
 #include "sensors.h"
-#include <Arduino.h>
 
 volatile uint8_t currentKeyState; // debounced state
 volatile uint8_t key_state;       // bit x = 1: key has changed state
@@ -145,7 +144,7 @@ void handleKeys() {
           lowAlarmAcknoledged = true;
           lowAlarmTriggered = false;
           highAlarmAcknoledged = false;
-          digitalWrite(LED_BLUE, LOW);
+          setLED(LED_BLUE, OFF);
           Serial.println(F("Low alarm ack"));
           blinkDisplay(false);
           deviceMode = MODE_IDLE;
@@ -156,8 +155,8 @@ void handleKeys() {
           highAlarmAcknoledged = true;
           highAlarmTriggered = false;
           lowAlarmAcknoledged = false;
-          digitalWrite(LED_RED, LOW);
-          digitalWrite(LED_BLUE, HIGH);
+          setLED(LED_RED, OFF);
+          setLED(LED_BLUE, ON);
           Serial.println(F("High alarm ack"));
           blinkDisplay(false);
         } else {

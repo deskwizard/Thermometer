@@ -128,16 +128,17 @@ void handleAlarms() {
       !lowAlarmTriggered) {
     Serial.print(F("Low Temperature Alarm: "));
     Serial.print(lowAlarmValue);
+    Serial.print("°C  R:");
+    Serial.print((tempC + 0.5));
     Serial.print("°C  S:");
     Serial.print(tempC);
     Serial.println("°C");
     lowAlarmTriggered = true;
     blinkDisplay(true);
-    digitalWrite(LED_BLUE, HIGH);
+    setLED(LED_BLUE, ON);
   }
 
-  if (tempC >= highAlarmValue && !highAlarmAcknoledged &&
-      !highAlarmTriggered) {
+  if (tempC >= highAlarmValue && !highAlarmAcknoledged && !highAlarmTriggered) {
     Serial.print(F("High Temperature Alarm: "));
     Serial.print(highAlarmValue);
     Serial.print("°C  R:");
@@ -147,7 +148,7 @@ void handleAlarms() {
     Serial.println("°C");
     highAlarmTriggered = true;
     blinkDisplay(true);
-    digitalWrite(LED_RED, HIGH);
+    setLED(LED_RED, ON);
   }
 
   if (millis() - previousMillis > LED_FLASH_RATE) {
@@ -155,12 +156,12 @@ void handleAlarms() {
     if (deviceMode == MODE_RUN) {
       if (!lowAlarmAcknoledged && highAlarmAcknoledged && !lowAlarmTriggered) {
         ledState = !ledState;
-        digitalWrite(LED_BLUE, ledState);
+        setLED(LED_BLUE, ledState);
       }
 
       if (!highAlarmAcknoledged && !highAlarmTriggered) {
         ledState = !ledState;
-        digitalWrite(LED_RED, ledState);
+        setLED(LED_RED, ledState);
       }
     }
 

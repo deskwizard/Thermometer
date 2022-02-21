@@ -1,8 +1,13 @@
 #pragma once
 
-#define LED_BLUE 19
-#define LED_RED 18
+#include <Arduino.h>
+
+#define LED_BLUE 18
+#define LED_RED 19
 #define LED_FLASH_RATE 500
+#define LED_INVERT  true
+#define OFF false
+#define ON true
 
 #define UNIT_C true
 #define UNIT_F false
@@ -16,3 +21,4 @@
 
 
 float CtoF(float celsius);
+void setLED(uint8_t ledPin, bool state);
